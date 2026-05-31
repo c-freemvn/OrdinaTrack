@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESOCS Access</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body class="auth-shell auth-page" data-page="auth">
+    <main class="auth-layout">
+        <section class="auth-form-panel">
+            <div class="auth-card auth-card-main">
+                <a href="/" class="auth-close-btn" aria-label="Return to landing page">&times;</a>
+                <div class="auth-tab-switcher" role="tablist" aria-label="Authentication forms">
+                    <button class="auth-tab active" id="signInTab" type="button" data-auth-target="signinPanel">Sign In</button>
+                    <button class="auth-tab" id="signUpTab" type="button" data-auth-target="signupPanel">Sign Up</button>
+                </div>
+
+                <div id="authStatus" class="alert d-none mt-3" role="alert"></div>
+
+                <section id="signinPanel" class="auth-panel-section">
+                    <div class="auth-panel-header">
+                        <img src="/assets/images/esocs%20cherubim-Logo.png" alt="ESOCS logo" class="auth-logo">
+                        <h2>Welcome back</h2>
+                        <p>Sign in with your church email and password.</p>
+                    </div>
+
+                    <form id="signinForm" class="auth-form-stack">
+                        <div>
+                            <label class="form-label" for="signinEmail">Church Email</label>
+                            <input id="signinEmail" class="form-control auth-input" type="email" placeholder="secretary@esocs.org" required>
+                        </div>
+
+                        <div>
+                            <label class="form-label" for="signinPassword">Password</label>
+                            <input id="signinPassword" class="form-control auth-input" type="password" placeholder="Enter password" required>
+                        </div>
+
+                        <button class="btn auth-primary-btn" type="submit">Sign In</button>
+                    </form>
+
+                    <button class="auth-forgot-link" id="forgotPasswordToggle" type="button">Forgotten password?</button>
+
+                    <div id="forgotPasswordPanel" class="auth-forgot-panel d-none">
+                        <h3>Reset password</h3>
+                        <p>Enter your church email and choose a new password.</p>
+
+                        <form id="forgotPasswordForm" class="auth-form-stack">
+                            <div>
+                                <label class="form-label" for="resetEmail">Church Email</label>
+                                <input id="resetEmail" class="form-control auth-input" type="email" placeholder="secretary@esocs.org" required>
+                            </div>
+
+                            <div>
+                                <label class="form-label" for="resetPassword">New Password</label>
+                                <input id="resetPassword" class="form-control auth-input" type="password" placeholder="Create new password" required>
+                            </div>
+
+                            <div>
+                                <label class="form-label" for="resetConfirmPassword">Confirm New Password</label>
+                                <input id="resetConfirmPassword" class="form-control auth-input" type="password" placeholder="Confirm new password" required>
+                            </div>
+
+                            <div class="auth-action-row">
+                                <button class="btn btn-outline-dark auth-secondary-btn" id="cancelForgotPassword" type="button">Cancel</button>
+                                <button class="btn auth-primary-btn" type="submit">Update Password</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <section id="signupPanel" class="auth-panel-section d-none">
+                    <div class="auth-panel-header">
+                        <h2>Create account</h2>
+                        <p>Register your ESOCS office and continue to password setup.</p>
+                    </div>
+
+                    <div class="auth-step-indicator">
+                        <span class="auth-step active" id="stepOneBadge">1. Account Details</span>
+                        <span class="auth-step" id="stepTwoBadge">2. Create Password</span>
+                    </div>
+
+                    <form id="signupForm" class="auth-form-stack">
+                        <div id="signupStepOne">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label" for="secretaryName">Name of Secretary</label>
+                                    <input id="secretaryName" class="form-control auth-input" type="text" placeholder="Enter secretary name" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="churchEmail">Church Email</label>
+                                    <input id="churchEmail" class="form-control auth-input" type="email" placeholder="secretary@esocs.org" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="signupRole">Role Selection</label>
+                                    <select id="signupRole" class="form-select auth-input" required>
+                                        <option value="">Select role</option>
+                                        <option value="NHQ">National Hq</option>
+                                        <option value="Province">Province</option>
+                                        <option value="District">District</option>
+                                        <option value="Branch">Branch</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6 d-none" id="provinceField">
+                                    <label class="form-label" for="provinceSelect">Province</label>
+                                    <select id="provinceSelect" class="form-select auth-input">
+                                        <option value="">Select province</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6 d-none" id="districtField">
+                                    <label class="form-label" for="districtSelect">District</label>
+                                    <select id="districtSelect" class="form-select auth-input">
+                                        <option value="">Select district</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-12 d-none" id="branchNameField">
+                                    <label class="form-label" for="branchName">Branch Name</label>
+                                    <input id="branchName" class="form-control auth-input" type="text" placeholder="Enter branch name">
+                                </div>
+
+                                <div class="col-12 d-none" id="officeSummaryField">
+                                    <label class="form-label" for="officeSummary">Office</label>
+                                    <input id="officeSummary" class="form-control auth-input" type="text" readonly>
+                                </div>
+                            </div>
+
+                            <button class="btn auth-primary-btn mt-4" id="nextSignupStep" type="button">Next</button>
+                        </div>
+
+                        <div id="signupStepTwo" class="d-none">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label" for="signupPassword">Create Password</label>
+                                    <input id="signupPassword" class="form-control auth-input" type="password" placeholder="Create password" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="confirmSignupPassword">Confirm Password</label>
+                                    <input id="confirmSignupPassword" class="form-control auth-input" type="password" placeholder="Confirm password" required>
+                                </div>
+                            </div>
+
+                            <div class="auth-action-row">
+                                <button class="btn btn-outline-dark auth-secondary-btn" id="backSignupStep" type="button">Back</button>
+                                <button class="btn auth-primary-btn" type="submit">Create Account</button>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/auth.js" defer></script>
+</body>
+</html>

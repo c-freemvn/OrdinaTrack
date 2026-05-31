@@ -1,0 +1,160 @@
+{
+  "churchName": "ESOCS",
+  "nationalHeadquarters": null,
+  "states": [
+    {
+      "name": "Abia",
+      "provinces": []
+    },
+    {
+      "name": "Adamawa",
+      "provinces": []
+    },
+    {
+      "name": "Akwa Ibom",
+      "provinces": []
+    },
+    {
+      "name": "Anambra",
+      "provinces": []
+    },
+    {
+      "name": "Bauchi",
+      "provinces": []
+    },
+    {
+      "name": "Bayelsa",
+      "provinces": []
+    },
+    {
+      "name": "Benue",
+      "provinces": []
+    },
+    {
+      "name": "Borno",
+      "provinces": []
+    },
+    {
+      "name": "Cross River",
+      "provinces": []
+    },
+    {
+      "name": "Delta",
+      "provinces": []
+    },
+    {
+      "name": "Ebonyi",
+      "provinces": []
+    },
+    {
+      "name": "Edo",
+      "provinces": []
+    },
+    {
+      "name": "Ekiti",
+      "provinces": []
+    },
+    {
+      "name": "Enugu",
+      "provinces": []
+    },
+    {
+      "name": "Federal Capital Territory",
+      "provinces": []
+    },
+    {
+      "name": "Gombe",
+      "provinces": []
+    },
+    {
+      "name": "Imo",
+      "provinces": []
+    },
+    {
+      "name": "Jigawa",
+      "provinces": []
+    },
+    {
+      "name": "Kaduna",
+      "provinces": []
+    },
+    {
+      "name": "Kano",
+      "provinces": []
+    },
+    {
+      "name": "Katsina",
+      "provinces": []
+    },
+    {
+      "name": "Kebbi",
+      "provinces": []
+    },
+    {
+      "name": "Kogi",
+      "provinces": []
+    },
+    {
+      "name": "Kwara",
+      "provinces": []
+    },
+    {
+      "name": "Lagos",
+      "provinces": []
+    },
+    {
+      "name": "Nasarawa",
+      "provinces": []
+    },
+    {
+      "name": "Niger",
+      "provinces": []
+    },
+    {
+      "name": "Ogun",
+      "provinces": []
+    },
+    {
+      "name": "Ondo",
+      "provinces": []
+    },
+    {
+      "name": "Osun",
+      "provinces": []
+    },
+    {
+      "name": "Oyo",
+      "provinces": []
+    },
+    {
+      "name": "Plateau",
+      "provinces": []
+    },
+    {
+      "name": "Rivers",
+      "provinces": [
+        {
+          "id": "province_46e15e0e-7e8c-4121-a7a5-58d1cc7a963a",
+          "name": "Okrika Province",
+          "districts": []
+        }
+      ]
+    },
+    {
+      "name": "Sokoto",
+      "provinces": []
+    },
+    {
+      "name": "Taraba",
+      "provinces": []
+    },
+    {
+      "name": "Yobe",
+      "provinces": []
+    },
+    {
+      "name": "Zamfara",
+      "provinces": []
+    }
+  ]
+}

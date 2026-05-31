@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Branch Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/Assets/css/style.css">
+</head>
+<body data-role="Branch">
+<nav class="navbar sticky-top navbar-expand-lg bg-navbar-100">
+  <div class="container-fluid nav-text">
+    <button class="btn btn-sm btn-outline-light d-md-none me-2" type="button" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+      &#9776;
+    </button>
+    <div class="dashboard-brand-wrap d-flex align-items-center w-100">
+      <svg class="dashboard-nav-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36.53 34" aria-label="OrdinaTrack logo">
+        <g fill="currentColor">
+          <rect x="0" y="0" width="1.7" height="7.7" rx=".85" />
+          <rect x="0" y="8.5" width="1.7" height="14.8" rx=".85" />
+          <rect x="0" y="24.3" width="1.7" height="9.7" rx=".85" />
+          <rect x="4.25" y="0" width="1.7" height="7.7" rx=".85" />
+          <rect x="4.25" y="8.5" width="1.7" height="14.8" rx=".85" />
+          <rect x="4.25" y="24.3" width="1.7" height="9.7" rx=".85" />
+          <rect x="7.65" y="2.55" width="1.7" height="13.1" rx=".85" />
+          <rect x="7.65" y="18.7" width="1.7" height="12.25" rx=".85" />
+          <rect x="11.9" y="2.55" width="1.7" height="13.1" rx=".85" />
+          <rect x="11.9" y="18.7" width="1.7" height="12.25" rx=".85" />
+          <rect x="15.3" y="0" width="1.7" height="7.7" rx=".85" />
+          <rect x="15.3" y="8.5" width="1.7" height="14.8" rx=".85" />
+          <rect x="15.3" y="24.3" width="1.7" height="9.7" rx=".85" />
+          <rect x="19.55" y="0" width="1.7" height="7.7" rx=".85" />
+          <rect x="19.55" y="8.5" width="1.7" height="14.8" rx=".85" />
+          <rect x="19.55" y="24.3" width="1.7" height="9.7" rx=".85" />
+          <rect x="22.93" y="2.55" width="1.7" height="13.1" rx=".85" />
+          <rect x="22.93" y="18.7" width="1.7" height="12.25" rx=".85" />
+          <rect x="27.18" y="2.55" width="1.7" height="13.1" rx=".85" />
+          <rect x="27.18" y="18.7" width="1.7" height="12.25" rx=".85" />
+          <rect x="30.58" y="0" width="1.7" height="7.7" rx=".85" />
+          <rect x="30.58" y="8.5" width="1.7" height="14.8" rx=".85" />
+          <rect x="30.58" y="24.3" width="1.7" height="9.7" rx=".85" />
+          <rect x="34.83" y="0" width="1.7" height="7.7" rx=".85" />
+          <rect x="34.83" y="8.5" width="1.7" height="14.8" rx=".85" />
+          <rect x="34.83" y="24.3" width="1.7" height="9.7" rx=".85" />
+          <rect x="0" y="8.5" width="5.95" height="1.7" rx=".85" />
+          <rect x="0" y="23.78" width="5.95" height="1.7" rx=".85" />
+          <rect x="7.65" y="0" width="5.95" height="1.7" rx=".85" />
+          <rect x="7.65" y="16.97" width="5.95" height="1.7" rx=".85" />
+          <rect x="7.65" y="32.25" width="5.95" height="1.7" rx=".85" />
+          <rect x="15.3" y="8.5" width="5.95" height="1.7" rx=".85" />
+          <rect x="15.3" y="23.78" width="5.95" height="1.7" rx=".85" />
+          <rect x="22.93" y="0" width="5.95" height="1.7" rx=".85" />
+          <rect x="22.93" y="16.97" width="5.95" height="1.7" rx=".85" />
+          <rect x="22.93" y="32.25" width="5.95" height="1.7" rx=".85" />
+          <rect x="30.58" y="8.5" width="5.95" height="1.7" rx=".85" />
+          <rect x="30.58" y="23.78" width="5.95" height="1.7" rx=".85" />
+        </g>
+      </svg>
+      <span class="navbar-brand fw-bold brand-animated">OrdinaTrack</span>
+      <small class="brand-subtext ms-auto">Track. Manage. Elevate.</small>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid">
+  <div class="row">
+    <nav id="sidebar" class="col-md-2 bg-dark-200 sidebar vh-100 p-3">
+      <ul class="nav flex-column" id="sidenav">
+        <li class="nav-item" data-role="Branch">
+          <a class="nav-link sidebar-link active" data-page="overview" href="#" onclick="showPage('overview')">Branch Overview</a>
+          <a class="nav-link sidebar-link" data-page="members" href="#" onclick="showPage('members')">Members Data</a>
+          <a class="nav-link sidebar-link" data-page="ordination" href="#" onclick="showPage('ordination')">Recommended List</a>
+          <a class="nav-link sidebar-link" data-page="messages" href="#" onclick="showFeatureInDevelopment(); return false;">Messages</a>
+          <a class="nav-link sidebar-link" data-page="announcements" href="#" onclick="showPage('announcements')">Announcements</a>
+          <a class="nav-link sidebar-link mt-4" data-page="feedback" href="#" onclick="showPage('feedback')">Feedback</a>
+          <a class="nav-link sidebar-link" data-page="help" href="#" onclick="showPage('help')">Get Help</a>
+          <a class="nav-link sidebar-link" data-page="configuration" href="#" onclick="showPage('configuration')">Configuration</a>
+        </li>
+      </ul>
+    </nav>
+
+    <main class="col-md-10 ms-sm-auto px-4">
+      <div class="dashboard-section" data-role="Branch">
+        <div class="page" id="overview">
+          <section class="analytics-dashboard" data-analytics-dashboard>
+            <div class="analytics-hero">
+              <div>
+                <span class="analytics-kicker">Membership analytics</span>
+                <h2 class="analytics-title">Branch membership command center</h2>
+                <p class="analytics-subtitle">Track your branch health, monitor growth, and spot membership movement at a glance.</p>
+              </div>
+              <div class="analytics-hero-badge">
+                <span class="analytics-badge-label">Live scope</span>
+                <strong data-analytics-scope-label>Branch</strong>
+              </div>
+            </div>
+
+            <div class="analytics-summary-grid" data-summary-cards></div>
+
+            <div class="analytics-main-grid">
+              <article class="analytics-panel analytics-chart-panel">
+                <div class="analytics-panel-head">
+                  <div>
+                    <p class="analytics-panel-kicker">Membership activity</p>
+                    <h3>Registration and engagement trend</h3>
+                  </div>
+                  <div class="analytics-filter-group" data-chart-filters>
+                    <button class="analytics-filter active" type="button" data-filter="7d">Last 7 days</button>
+                    <button class="analytics-filter" type="button" data-filter="30d">Last 30 days</button>
+                    <button class="analytics-filter" type="button" data-filter="12m">Last 12 months</button>
+                  </div>
+                </div>
+
+                <div class="analytics-growth-banner">
+                  <div>
+                    <span class="analytics-growth-value" data-growth-count>0</span>
+                    <p class="analytics-growth-copy" data-growth-note>new members added in the selected period</p>
+                  </div>
+                  <span class="analytics-trend-chip" data-growth-trend>+0%</span>
+                </div>
+
+                <div class="analytics-chart" data-membership-chart></div>
+                <div class="analytics-chart-axis" data-chart-axis></div>
+              </article>
+
+              <div class="analytics-side-stack">
+                <article class="analytics-panel">
+                  <div class="analytics-panel-head compact">
+                    <div>
+                      <p class="analytics-panel-kicker">Demographics</p>
+                      <h3>Membership split</h3>
+                    </div>
+                    <strong class="analytics-panel-total" data-demographic-total>0 members</strong>
+                  </div>
+
+                  <div class="analytics-demographics">
+                    <div class="analytics-donut-wrap">
+                      <div class="analytics-donut" data-demographic-donut></div>
+                    </div>
+                    <div class="analytics-legend" data-demographic-legend></div>
+                  </div>
+                </article>
+
+                <article class="analytics-panel">
+                  <div class="analytics-panel-head compact">
+                    <div>
+                      <p class="analytics-panel-kicker">Ordination levels</p>
+                      <h3>Rank distribution</h3>
+                    </div>
+                  </div>
+
+                  <div class="analytics-rank-list" data-rank-distribution></div>
+                </article>
+              </div>
+            </div>
+
+            <div class="analytics-bottom-grid">
+              <article class="analytics-panel">
+                <div class="analytics-panel-head compact">
+                  <div>
+                    <p class="analytics-panel-kicker">Recent activity</p>
+                    <h3>Latest movement</h3>
+                  </div>
+                </div>
+
+                <div class="analytics-activity-feed" data-activity-feed></div>
+              </article>
+            </div>
+          </section>
+        </div>
+
+        <div class="page d-none" id="members">
+          <div class="d-flex justify-content-between align-items-center">
+            <h2>Members Data</h2>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-outline-dark" onclick="printMembersData()">Print Members</button>
+              <button type="button" class="btn btn-primary" onclick="openAddModal()">+ Add Member</button>
+            </div>
+          </div>
+
+          <div class="mt-3">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search members..." onkeyup="filterTable()">
+          </div>
+
+          <div class="table-responsive mt-3">
+            <table class="table table-striped table-hover align-middle">
+              <thead class="table-dark">
+                <tr>
+                  <th>Name</th>
+                  <th>Sex</th>
+                  <th>Rank</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="membersTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="page d-none" id="ordination">
+          <div class="d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">Recommended List</h2>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-success" onclick="pushAllToPHQ()">Push All To District</button>
+              <button class="btn btn-sm btn-warning" onclick="pullAllBack()">Pull All</button>
+            </div>
+          </div>
+          <div class="table-responsive mt-3">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Sex</th>
+                  <th>Current Rank</th>
+                  <th>Recommended Rank</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="recommendedTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="page d-none" id="messages">
+          <h2>Messages</h2>
+          <p>Messaging features are still in development.</p>
+          <p class="text-muted mb-0">This section will be available in a future update.</p>
+        </div>
+
+        <div class="page d-none" id="announcements">
+          <h2>Announcements</h2>
+          <p>Important notices for all branch workers.</p>
+          <p class="text-muted mb-0">No active announcements currently.</p>
+        </div>
+
+        <div class="page d-none" id="feedback">
+          <h2>Feedback</h2>
+          <p>Submit your ideas and report issues about this dashboard.</p>
+          <p class="text-muted mb-0">Use clear titles so feedback can be reviewed faster.</p>
+        </div>
+
+        <div class="page d-none" id="help">
+          <h2>Get Help</h2>
+          <p>Find support resources and quick usage tips.</p>
+          <p class="text-muted mb-0">Contact your district admin if you cannot access member records.</p>
+        </div>
+
+        <div class="page d-none" id="configuration">
+          <h2>Configuration</h2>
+          <p>Manage branch-level dashboard settings and defaults.</p>
+          <p class="text-muted mb-0">Changes here affect only your branch workspace.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="modal fade" id="addMemberModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Member</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <h6 class="mb-3">Basic Information</h6>
+
+        <div class="row">
+          <div class="col-md-6 mb-2">
+            <input type="text" id="memberName" class="form-control" placeholder="Full Name">
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <select id="memberSex" class="form-select" onchange="updateRankOptions()">
+              <option value="">Select Sex</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <select id="memberRank" class="form-select">
+              <option value="">Select Rank</option>
+            </select>
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="date" id="memberDOB" class="form-control">
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="email" id="memberEmail" class="form-control" placeholder="Email">
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="text" id="memberPhone" class="form-control" placeholder="Phone Number">
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="text" id="memberOccupation" class="form-control" placeholder="Occupation">
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="text" id="memberNationality" class="form-control" placeholder="Nationality">
+          </div>
+        </div>
+
+        <hr>
+        <h6>Band</h6>
+
+        <div class="row">
+          <div class="col-md-6 mb-2">
+            <select id="memberBand" class="form-select">
+              <option value="">Select Band</option>
+              <option>Cherub</option>
+              <option>Seraph</option>
+            </select>
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <select id="memberAssociation" class="form-select">
+              <option value="">Other Association</option>
+              <option>King David Association</option>
+              <option>Eternal Touch Bearers</option>
+              <option>Eternal Sisters Ass</option>
+              <option>Zion Daughters</option>
+              <option>Atupa Ti Olorun Tan</option>
+              <option>MZYS</option>
+              <option>N/A</option>
+            </select>
+          </div>
+        </div>
+
+        <hr>
+        <h6>Marital Status</h6>
+
+        <div class="row">
+          <div class="col-md-6 mb-2">
+            <select id="maritalStatus" class="form-select" onchange="toggleMarriageYear()">
+              <option value="">Select Status</option>
+              <option>Single</option>
+              <option>Married</option>
+            </select>
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <select id="marriageYear" class="form-select d-none">
+              <option value="">Year of Marriage</option>
+            </select>
+          </div>
+        </div>
+
+        <hr>
+        <h6>Past Ordination</h6>
+
+        <div id="ordinationContainer"></div>
+
+        <button class="btn btn-sm btn-outline-primary mt-2" onclick="addOrdinationField()">
+          + Add Ordination
+        </button>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveMember()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="profileModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Member Profile</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body" id="profileContent"></div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-primary" onclick="editFromProfile()">Edit Data</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="editMemberModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Member Data</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6 mb-2">
+            <input type="text" id="editName" class="form-control" placeholder="Full Name">
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <select id="editSex" class="form-select" onchange="updateEditRankOptions()">
+              <option value="">Select Sex</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <select id="editRank" class="form-select">
+              <option value="">Select Rank</option>
+            </select>
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="date" id="editDOB" class="form-control">
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="email" id="editEmail" class="form-control" placeholder="Email">
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="text" id="editPhone" class="form-control" placeholder="Phone Number">
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="text" id="editOccupation" class="form-control" placeholder="Occupation">
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="text" id="editNationality" class="form-control" placeholder="Nationality">
+          </div>
+        </div>
+
+        <hr>
+
+        <div class="row">
+          <div class="col-md-6 mb-2">
+            <select id="editBand" class="form-select">
+              <option value="">Select Band</option>
+              <option value="Cherub">Cherub</option>
+              <option value="Seraph">Seraph</option>
+            </select>
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <select id="editAssociation" class="form-select">
+              <option value="">Select Association</option>
+              <option>King David Association</option>
+              <option>Eternal Touch Bearers</option>
+              <option>Eternal Sisters Ass</option>
+              <option>Zion Daughters</option>
+              <option>Atupa Ti Olorun Tan</option>
+              <option>MZYS</option>
+              <option>N/A</option>
+            </select>
+          </div>
+        </div>
+
+        <hr>
+
+        <div class="row">
+          <div class="col-md-6 mb-2">
+            <select id="editMaritalStatus" class="form-select" onchange="toggleEditMarriageYear()">
+              <option value="">Select Status</option>
+              <option value="Single">Single</option>
+              <option value="Married">Married</option>
+            </select>
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <select id="editMarriageYear" class="form-select d-none">
+              <option value="">Year of Marriage</option>
+            </select>
+          </div>
+        </div>
+
+        <hr>
+
+        <h6>Ordination History</h6>
+
+        <div id="editOrdinationContainer"></div>
+
+        <button class="btn btn-sm btn-outline-primary mt-2" onclick="addEditOrdinationField()">
+          + Add Ordination
+        </button>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="updateMember()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="recommendModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Recommend Member</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <p>Select rank to recommend:</p>
+
+        <select id="recommendRank" class="form-select">
+          <option value="">Select Rank</option>
+        </select>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="confirmRecommendation()">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/Assets/js/main.js" defer></script>
+</body>
+</html>

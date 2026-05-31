@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-labelledby="title desc">
+  <title id="title">Provincial administrator illustration</title>
+  <desc id="desc">A stylized illustration of a provincial administrator coordinating data.</desc>
+  <defs>
+    <linearGradient id="bg3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172b"/>
+      <stop offset="100%" stop-color="#21395d"/>
+    </linearGradient>
+    <linearGradient id="panel3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f8fbff"/>
+      <stop offset="100%" stop-color="#dbe6fb"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="480" rx="36" fill="url(#bg3)"/>
+  <circle cx="102" cy="110" r="80" fill="#62c6ff" opacity=".16"/>
+  <circle cx="528" cy="388" r="92" fill="#f5c15c" opacity=".14"/>
+  <rect x="78" y="88" width="484" height="304" rx="28" fill="#10192f" stroke="#294064" stroke-width="2"/>
+  <rect x="104" y="118" width="160" height="244" rx="24" fill="url(#panel3)"/>
+  <rect x="286" y="118" width="248" height="110" rx="22" fill="#14213f"/>
+  <rect x="286" y="246" width="248" height="116" rx="22" fill="#14213f"/>
+  <circle cx="184" cy="178" r="42" fill="#f0b18f"/>
+  <path d="M145 174c6-35 71-42 84 3-14 8-28 12-42 12-15 0-28-4-42-15Z" fill="#23161f"/>
+  <path d="M136 320c13-48 49-79 93-79 39 0 76 28 85 79v14H136z" fill="#4bc0c8"/>
+  <rect x="314" y="144" width="112" height="12" rx="6" fill="#dce5f7"/>
+  <rect x="314" y="167" width="154" height="12" rx="6" fill="#9fb2d7"/>
+  <rect x="314" y="270" width="44" height="62" rx="12" fill="#243962"/>
+  <rect x="372" y="294" width="44" height="38" rx="12" fill="#5a7fff"/>
+  <rect x="430" y="256" width="44" height="76" rx="12" fill="#f5c15c"/>
+  <rect x="488" y="282" width="44" height="50" rx="12" fill="#4bc0c8"/>
+  <rect x="314" y="340" width="172" height="10" rx="5" fill="#9fb2d7"/>
+</svg>

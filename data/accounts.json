@@ -1,0 +1,19 @@
+[
+  {
+    "id": "acct_0ed337d4-e172-4baf-bd2d-62724c2e6a3e",
+    "fullName": "Charles Iyowuna",
+    "email": "charlesbenjamin842@gmail.com",
+    "passwordHash": "3521d9d623df13ff0df7e77ee47a8276:52333c8ceace36f988c12a37deb70c6182d731286941f4485612e1806dbef4b0182fc420761bb1b56916a4d6a0ec06b6b9c3e8ab4e5f40e4b29e331e1801091b",
+    "churchName": "ESOCS",
+    "registrationRole": "Provincial Headquarters",
+    "dashboardRole": "Province",
+    "state": "Rivers",
+    "province": {
+      "id": "province_46e15e0e-7e8c-4121-a7a5-58d1cc7a963a",
+      "name": "Okrika Province"
+    },
+    "district": null,
+    "branch": null,
+    "createdAt": "2026-04-07T10:37:22.255Z"
+  }
+]
