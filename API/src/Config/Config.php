@@ -27,6 +27,15 @@ class Config
             $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
             $dotenv->load();
             self::$cache['initialized'] = true;
+
+            // Initialize database schemas
+            try {
+                require_once __DIR__ . '/../Connections/schemas.php';
+                \Ordinatrack\Api\Connections\Schema::initialize();
+            } catch (\Exception $e) {
+                error_log('Schema initialization error: ' . $e->getMessage());
+                // Don't throw - allow app to continue even if schema creation fails
+            }
         }
     }
 
