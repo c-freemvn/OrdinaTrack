@@ -51,6 +51,9 @@ class Schema
             self::createRequestsTable();
             self::createAuditLogsTable();
 
+            // Create super admin user and assign all permissions
+            self::createSuperAdminUser();
+
             error_log('All database schemas initialized successfully');
             return true;
         } catch (PDOException $e) {
@@ -776,6 +779,84 @@ class Schema
         }
     }
 
+    /**
+     * Create super admin user with all permissions
+     * Called during schema initialization
+     */
+    private static function createSuperAdminUser(): void
+    {
+        try {
+            // Check if super admin already exists
+            $superAdminExists = Database::fetch(
+                "SELECT id FROM users WHERE email = 'super.admin@ordinatrack.com'"
+            );
+
+            if ($superAdminExists) {
+                error_log('Super admin user already exists');
+                return;
+            }
+
+            // Create super admin user
+            $hashedPassword = password_hash('SuperAdmin@123!', PASSWORD_BCRYPT, ['cost' => 12]);
+            
+            Database::execute(
+                "INSERT INTO users (email, password, first_name, last_name, is_active, email_verified, email_verified_at) 
+                 VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
+                [
+                    'super.admin@ordinatrack.com',
+                    $hashedPassword,
+                    'Super',
+                    'Admin',
+                    true,
+                    true
+                ]
+            );
+
+            $superAdminId = Database::lastInsertId();
+            error_log("Super admin user created with ID: {$superAdminId}");
+
+            // Get or create Admin role
+            $adminRole = Database::fetch("SELECT id FROM roles WHERE slug = 'admin'");
+            
+            if (!$adminRole) {
+                Database::execute(
+                    "INSERT INTO roles (name, slug, description) VALUES (?, ?, ?)",
+                    ['Admin', 'admin', 'System administrator with full access']
+                );
+                $adminRole = Database::fetch("SELECT id FROM roles WHERE slug = 'admin'");
+            }
+
+            if ($adminRole) {
+                // Assign admin role to super admin
+                Database::execute(
+                    "INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)",
+                    [$superAdminId, $adminRole['id']]
+                );
+
+                // Get all permissions and assign them to admin role
+                $permissions = Database::fetchAll("SELECT id FROM permissions");
+                
+                foreach ($permissions as $permission) {
+                    // Check if already assigned
+                    $exists = Database::fetch(
+                        "SELECT id FROM role_permissions WHERE role_id = ? AND permission_id = ?",
+                        [$adminRole['id'], $permission['id']]
+                    );
+
+                    if (!$exists) {
+                        Database::execute(
+                            "INSERT INTO role_permissions (role_id, permission_id) VALUES (?, ?)",
+                            [$adminRole['id'], $permission['id']]
+                        );
+                    }
+                }
+
+                error_log("All permissions assigned to admin role");
+            }
+        } catch (PDOException $e) {
+            error_log('Create super admin user error: ' . $e->getMessage());
+        }
+    }
     /**
      * Private constructor to prevent instantiation
      */

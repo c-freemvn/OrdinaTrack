@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings - OrdinaTrack NHQ</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+            poppins: ['Poppins', 'sans-serif'],
+          },
+          colors: {
+            primary: '#2563eb',
+            'primary-dark': '#1e40af',
+          },
+        },
+      },
+    }
+  </script>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .sidebar {
+      background: white;
+      border-right: 1px solid #e2e8f0;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      color: #64748b;
+      text-decoration: none;
+      border-left: 3px solid transparent;
+      transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sidebar-link:hover {
+      background-color: #f1f5f9;
+      color: #334155;
+    }
+
+    .sidebar-link.active {
+      background-color: #eff6ff;
+      color: #2563eb;
+      border-left-color: #2563eb;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      padding: 24px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms;
+    }
+
+    .btn-secondary {
+      background-color: #e2e8f0;
+      color: #334155;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms;
+    }
+
+    .form-input {
+      border: 1px solid #e0e7ff;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 16px;
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+      transition: all 200ms;
+      width: 100%;
+    }
+
+    .form-input:focus {
+      outline: none;
+      background-color: #fff;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .form-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+
+    .tab-button {
+      padding: 12px 16px;
+      border: none;
+      background: none;
+      color: #64748b;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 200ms;
+    }
+
+    .tab-button.active {
+      color: #2563eb;
+      border-bottom-color: #2563eb;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 28px;
+      background-color: #cbd5e1;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: background-color 200ms;
+    }
+
+    .toggle-switch.active {
+      background-color: #2563eb;
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      background-color: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: left 200ms;
+    }
+
+    .toggle-switch.active::after {
+      left: 24px;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-gray-50">
+  <div class="flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="sidebar w-64 hidden md:flex flex-col">
+      <div class="p-6 border-b border-gray-200">
+        <h2 class="text-2xl font-bold text-gray-900">OrdinaTrack</h2>
+        <p class="text-sm text-gray-600 mt-1">National HQ</p>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto py-4">
+        <div class="px-4 mb-4">
+          <p class="text-xs font-semibold text-gray-500 uppercase">Dashboard</p>
+        </div>
+        
+        <a href="../index.html" class="sidebar-link">
+          <span class="mr-3">📊</span>
+          <span>Overview</span>
+        </a>
+        
+        <a href="users.html" class="sidebar-link">
+          <span class="mr-3">👥</span>
+          <span>User Management</span>
+        </a>
+
+        <div class="px-4 mt-6 mb-4">
+          <p class="text-xs font-semibold text-gray-500 uppercase">Reports</p>
+        </div>
+
+        <a href="reports.html" class="sidebar-link">
+          <span class="mr-3">📈</span>
+          <span>Analytics</span>
+        </a>
+
+        <div class="px-4 mt-6 mb-4">
+          <p class="text-xs font-semibold text-gray-500 uppercase">Settings</p>
+        </div>
+
+        <a href="settings.html" class="sidebar-link active">
+          <span class="mr-3">⚙️</span>
+          <span>Configuration</span>
+        </a>
+      </nav>
+
+      <div class="p-4 border-t border-gray-200">
+        <button onclick="logout()" class="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+          Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-auto">
+      <!-- Top Bar -->
+      <div class="bg-white border-b border-gray-200 px-8 py-4">
+        <h1 class="text-2xl font-bold text-gray-900">Settings</h1>
+        <p class="text-sm text-gray-600 mt-1">Configure system settings and preferences</p>
+      </div>
+
+      <!-- Content -->
+      <div class="p-8">
+        <!-- Tabs -->
+        <div class="mb-8 border-b border-gray-200">
+          <div class="flex gap-4">
+            <button class="tab-button active" onclick="switchTab('general')">General</button>
+            <button class="tab-button" onclick="switchTab('security')" id="securityTab">Security</button>
+            <button class="tab-button" onclick="switchTab('email')" id="emailTab">Email</button>
+            <button class="tab-button" onclick="switchTab('audit')" id="auditTab">Audit Logs</button>
+          </div>
+        </div>
+
+        <!-- General Tab -->
+        <div id="generalContent" class="tab-content">
+          <div class="card mb-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-6">General Settings</h3>
+            <div class="space-y-6">
+              <div>
+                <label class="form-label">Organization Name</label>
+                <input type="text" class="form-input" value="ESOCS Cherubim & Seraphim" />
+              </div>
+              <div>
+                <label class="form-label">Organization Email</label>
+                <input type="email" class="form-input" value="admin@esocs.org" />
+              </div>
+              <div>
+                <label class="form-label">Organization Website</label>
+                <input type="text" class="form-input" value="https://www.esocs.org" />
+              </div>
+              <div>
+                <label class="form-label">System Timezone</label>
+                <select class="form-input">
+                  <option>UTC+1 (West Africa Time)</option>
+                  <option>UTC+0 (GMT)</option>
+                  <option>UTC+2 (Central Africa Time)</option>
+                </select>
+              </div>
+              <div class="pt-4 border-t border-gray-200 flex gap-3">
+                <button class="btn-primary">Save Changes</button>
+                <button class="btn-secondary">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security Tab -->
+        <div id="securityContent" class="tab-content hidden">
+          <div class="card mb-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-6">Security Settings</h3>
+            <div class="space-y-6">
+              <div class="flex items-center justify-between pb-4 border-b border-gray-200">
+                <div>
+                  <p class="font-medium text-gray-900">Two-Factor Authentication</p>
+                  <p class="text-sm text-gray-600">Require 2FA for all admin users</p>
+                </div>
+                <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+              </div>
+
+              <div class="flex items-center justify-between pb-4 border-b border-gray-200">
+                <div>
+                  <p class="font-medium text-gray-900">Password Expiry</p>
+                  <p class="text-sm text-gray-600">Force password change every 90 days</p>
+                </div>
+                <div class="toggle-switch" onclick="this.classList.toggle('active')"></div>
+              </div>
+
+              <div class="flex items-center justify-between pb-4 border-b border-gray-200">
+                <div>
+                  <p class="font-medium text-gray-900">IP Whitelist</p>
+                  <p class="text-sm text-gray-600">Restrict access to specific IPs</p>
+                </div>
+                <div class="toggle-switch" onclick="this.classList.toggle('active')"></div>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-medium text-gray-900">Login Notifications</p>
+                  <p class="text-sm text-gray-600">Notify admins of unusual login activity</p>
+                </div>
+                <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+              </div>
+
+              <div class="pt-4 border-t border-gray-200">
+                <button class="btn-primary">Save Security Settings</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Email Tab -->
+        <div id="emailContent" class="tab-content hidden">
+          <div class="card mb-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-6">Email Configuration</h3>
+            <div class="space-y-6">
+              <div>
+                <label class="form-label">SMTP Server</label>
+                <input type="text" class="form-input" value="smtp.gmail.com" />
+              </div>
+              <div>
+                <label class="form-label">SMTP Port</label>
+                <input type="text" class="form-input" value="587" />
+              </div>
+              <div>
+                <label class="form-label">Email Address</label>
+                <input type="email" class="form-input" value="noreply@esocs.org" />
+              </div>
+              <div>
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" value="••••••••" />
+              </div>
+              <div class="flex items-center gap-3 pb-4 border-b border-gray-200">
+                <input type="checkbox" id="tlsCheck" checked />
+                <label for="tlsCheck" class="text-sm text-gray-700">Use TLS Encryption</label>
+              </div>
+              <div class="pt-4 border-t border-gray-200 flex gap-3">
+                <button class="btn-primary">Test Email</button>
+                <button class="btn-primary">Save Configuration</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audit Logs Tab -->
+        <div id="auditContent" class="tab-content hidden">
+          <div class="card">
+            <h3 class="text-lg font-bold text-gray-900 mb-6">Audit Logs</h3>
+            <div class="space-y-3 max-h-96 overflow-y-auto">
+              <div class="flex items-start gap-4 pb-3 border-b border-gray-200">
+                <div class="text-lg">🔑</div>
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900">Login</p>
+                  <p class="text-xs text-gray-600">Admin User logged in from 192.168.1.100</p>
+                  <p class="text-xs text-gray-500">2 hours ago</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4 pb-3 border-b border-gray-200">
+                <div class="text-lg">👤</div>
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900">User Created</p>
+                  <p class="text-xs text-gray-600">New user 'Sarah Smith' created with role 'Province Lead'</p>
+                  <p class="text-xs text-gray-500">4 hours ago</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4 pb-3 border-b border-gray-200">
+                <div class="text-lg">⚙️</div>
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900">Settings Updated</p>
+                  <p class="text-xs text-gray-600">SMTP configuration changed</p>
+                  <p class="text-xs text-gray-500">1 day ago</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4 pb-3 border-b border-gray-200">
+                <div class="text-lg">🗑️</div>
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900">User Deleted</p>
+                  <p class="text-xs text-gray-600">User 'John Inactive' removed from system</p>
+                  <p class="text-xs text-gray-500">2 days ago</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4 pb-3 border-b border-gray-200">
+                <div class="text-lg">📊</div>
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900">Report Generated</p>
+                  <p class="text-xs text-gray-600">Monthly analytics report exported</p>
+                  <p class="text-xs text-gray-500">3 days ago</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
+
+      document.getElementById(tab + 'Content').classList.remove('hidden');
+      event.target.classList.add('active');
+    }
+
+    function logout() {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user_info');
+      window.location.href = '/OrdinaTrack/App/pages/signin.html';
+    }
+  </script>
+</body>
+</html>

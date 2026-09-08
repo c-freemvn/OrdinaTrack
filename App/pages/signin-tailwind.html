@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OrdinaTrack - Authentication</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+            poppins: ['Poppins', 'sans-serif'],
+          },
+          colors: {
+            primary: '#2563eb',
+            'primary-dark': '#1e40af',
+            'primary-light': '#dbeafe',
+          },
+        },
+      },
+    }
+  </script>
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../Assets/css/tailwind.css" />
+  <style>
+    * {
+      transition: all 0.3s ease;
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-gray-50 via-blue-50 to-gray-50 min-h-screen" data-page="auth">
+  <!-- Background Pattern -->
+  <div class="fixed inset-0 -z-10 overflow-hidden">
+    <div class="absolute top-0 left-1/4 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
+    <div class="absolute -bottom-8 right-1/4 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style="animation-delay: 2s;"></div>
+  </div>
+
+  <main class="min-h-screen flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
+    <div class="w-full max-w-md">
+      <!-- Header -->
+      <div class="text-center mb-8 animate-slide-up">
+        <div class="mb-4 flex justify-center">
+          <img src="../Assets/images/ordinatrack-logo-transparent.png" alt="OrdinaTrack" class="h-12 w-auto" />
+        </div>
+        <h1 class="text-4xl font-bold font-poppins text-gray-900 mb-2">OrdinaTrack</h1>
+        <p class="text-gray-600">Manage your organization efficiently</p>
+      </div>
+
+      <!-- Main Card -->
+      <div class="card-padded shadow-card-lg animate-slide-up">
+        <!-- Close Button -->
+        <button 
+          onclick="window.location.href='/OrdinaTrack/'" 
+          class="absolute top-6 right-6 text-gray-400 hover:text-gray-600 text-2xl font-light transition-colors"
+          aria-label="Close"
+        >
+          ×
+        </button>
+
+        <!-- Tab Navigation -->
+        <div class="tabs mb-8 -mx-8 px-8" role="tablist">
+          <button
+            class="tab-item active"
+            id="signInTab"
+            type="button"
+            data-auth-target="signinPanel"
+            role="tab"
+            aria-selected="true"
+          >
+            Sign In
+          </button>
+          <button
+            class="tab-item"
+            id="signUpTab"
+            type="button"
+            data-auth-target="signupPanel"
+            role="tab"
+            aria-selected="false"
+          >
+            Sign Up
+          </button>
+        </div>
+
+        <!-- Alert Messages -->
+        <div id="authStatus" class="alert mb-6 hidden animate-slide-down" role="alert"></div>
+
+        <!-- Sign In Panel -->
+        <section id="signinPanel" class="panel-enter">
+          <form id="signinForm" class="space-y-5">
+            <!-- Email Field -->
+            <div class="form-input-group">
+              <label for="signinEmail" class="form-input-label">Email Address</label>
+              <input
+                id="signinEmail"
+                type="email"
+                name="email"
+                placeholder="secretary@esocs.org"
+                required
+                class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none"
+              />
+              <p class="form-input-hint text-blue-600 text-xs mt-1.5 opacity-0 hover:opacity-100">Tip: Use your church email</p>
+            </div>
+
+            <!-- Password Field -->
+            <div class="form-input-group">
+              <label for="signinPassword" class="form-input-label">Password</label>
+              <div class="relative">
+                <input
+                  id="signinPassword"
+                  type="password"
+                  name="password"
+                  placeholder="••••••••"
+                  required
+                  class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none"
+                />
+                <button
+                  type="button"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 text-sm"
+                  onclick="togglePasswordVisibility('signinPassword')"
+                >
+                  <span class="inline-block w-5 h-5" id="toggleIcon">👁</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Sign In Button -->
+            <button
+              type="submit"
+              id="signinBtn"
+              class="btn-primary w-full py-3 font-semibold text-base rounded-lg hover:shadow-lg"
+            >
+              Sign In
+            </button>
+          </form>
+
+          <!-- Forgot Password Link -->
+          <div class="mt-6 text-center">
+            <button
+              type="button"
+              id="forgotPasswordToggle"
+              class="text-blue-600 hover:text-blue-700 text-sm font-medium hover:underline transition-all"
+            >
+              Forgotten password?
+            </button>
+          </div>
+
+          <!-- Forgot Password Panel -->
+          <div id="forgotPasswordPanel" class="hidden mt-6 pt-6 border-t border-gray-200">
+            <h3 class="text-lg font-semibold font-poppins text-gray-900 mb-2">Reset Password</h3>
+            <p class="text-sm text-gray-600 mb-4">Enter your email and we'll send you a reset link.</p>
+
+            <form id="forgotPasswordForm" class="space-y-4">
+              <div class="form-input-group">
+                <label for="forgotPasswordEmail" class="form-input-label">Email Address</label>
+                <input
+                  id="forgotPasswordEmail"
+                  type="email"
+                  placeholder="secretary@esocs.org"
+                  required
+                  class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none"
+                />
+              </div>
+
+              <div id="resetTokenInfo" class="alert alert-info hidden p-3 rounded-lg text-sm">
+                ✓ Check your inbox for a password reset link. Click the link to reset your password.
+              </div>
+
+              <div class="flex gap-3">
+                <button
+                  type="button"
+                  id="cancelForgotPassword"
+                  class="btn-secondary flex-1 py-2.5 text-sm font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  id="forgotPasswordBtn"
+                  class="btn-primary flex-1 py-2.5 text-sm font-medium"
+                >
+                  Send Reset Link
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <!-- Sign Up Panel -->
+        <section id="signupPanel" class="hidden">
+          <!-- Step Indicator -->
+          <div class="flex items-center justify-between mb-8">
+            <div class="flex flex-col items-center">
+              <div class="w-10 h-10 rounded-full border-2 border-blue-600 bg-blue-600 text-white flex items-center justify-center font-semibold text-sm">
+                1
+              </div>
+              <p class="text-xs font-medium text-gray-700 mt-2">Account</p>
+            </div>
+            <div class="flex-1 h-0.5 bg-gray-300 mx-2 mt-2"></div>
+            <div class="flex flex-col items-center">
+              <div class="w-10 h-10 rounded-full border-2 border-gray-300 bg-white text-gray-600 flex items-center justify-center font-semibold text-sm" id="stepTwoBadge">
+                2
+              </div>
+              <p class="text-xs font-medium text-gray-600 mt-2">Password</p>
+            </div>
+          </div>
+
+          <form id="signupForm" class="space-y-5">
+            <!-- Step 1: Account Details -->
+            <div id="signupStepOne">
+              <!-- Secretary Name -->
+              <div class="form-input-group mb-4">
+                <label for="secretaryName" class="form-input-label">Name of Secretary</label>
+                <input
+                  id="secretaryName"
+                  type="text"
+                  placeholder="John Smith"
+                  required
+                  class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none"
+                />
+              </div>
+
+              <!-- Church Email -->
+              <div class="form-input-group mb-4">
+                <label for="churchEmail" class="form-input-label">Church Email</label>
+                <input
+                  id="churchEmail"
+                  type="email"
+                  placeholder="secretary@church.org"
+                  required
+                  class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none"
+                />
+              </div>
+
+              <!-- Role Selection -->
+              <div class="form-input-group mb-4">
+                <label for="signupRole" class="form-input-label">Role Selection</label>
+                <select
+                  id="signupRole"
+                  required
+                  class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none cursor-pointer"
+                >
+                  <option value="">Select your role...</option>
+                  <option value="NHQ">National HQ</option>
+                  <option value="Province">Province</option>
+                  <option value="District">District</option>
+                  <option value="Branch">Branch</option>
+                </select>
+              </div>
+
+              <!-- Province Field (hidden by default) -->
+              <div id="provinceField" class="form-input-group mb-4 hidden">
+                <label for="provinceSelect" class="form-input-label">Province</label>
+                <select
+                  id="provinceSelect"
+                  class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none cursor-pointer"
+                >
+                  <option value="">Select province...</option>
+                </select>
+              </div>
+
+              <!-- District Field (hidden by default) -->
+              <div id="districtField" class="form-input-group mb-4 hidden">
+                <label for="districtSelect" class="form-input-label">District</label>
+                <select
+                  id="districtSelect"
+                  class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none cursor-pointer"
+                >
+                  <option value="">Select district...</option>
+                </select>
+              </div>
+
+              <!-- Branch Name Field (hidden by default) -->
+              <div id="branchNameField" class="form-input-group mb-4 hidden">
+                <label for="branchName" class="form-input-label">Branch Name</label>
+                <input
+                  id="branchName"
+                  type="text"
+                  placeholder="Enter branch name"
+                  class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none"
+                />
+              </div>
+
+              <!-- Office Summary (hidden by default) -->
+              <div id="officeSummaryField" class="form-input-group mb-4 hidden">
+                <label for="officeSummary" class="form-input-label">Office</label>
+                <input
+                  id="officeSummary"
+                  type="text"
+                  readonly
+                  class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-100 text-gray-600 cursor-not-allowed"
+                />
+              </div>
+
+              <!-- Next Button -->
+              <button
+                type="button"
+                id="nextSignupStep"
+                class="btn-primary w-full py-3 font-semibold text-base rounded-lg mt-6 hover:shadow-lg"
+              >
+                Next →
+              </button>
+            </div>
+
+            <!-- Step 2: Password -->
+            <div id="signupStepTwo" class="hidden">
+              <!-- Create Password -->
+              <div class="form-input-group mb-4">
+                <label for="signupPassword" class="form-input-label">Create Password</label>
+                <div class="relative">
+                  <input
+                    id="signupPassword"
+                    type="password"
+                    placeholder="••••••••"
+                    required
+                    class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 text-sm"
+                    onclick="togglePasswordVisibility('signupPassword')"
+                  >
+                    👁
+                  </button>
+                </div>
+                <p class="text-xs text-gray-600 mt-2">
+                  Must contain: uppercase, lowercase, number & special character
+                </p>
+              </div>
+
+              <!-- Confirm Password -->
+              <div class="form-input-group mb-4">
+                <label for="confirmSignupPassword" class="form-input-label">Confirm Password</label>
+                <div class="relative">
+                  <input
+                    id="confirmSignupPassword"
+                    type="password"
+                    placeholder="••••••••"
+                    required
+                    class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 text-sm"
+                    onclick="togglePasswordVisibility('confirmSignupPassword')"
+                  >
+                    👁
+                  </button>
+                </div>
+              </div>
+
+              <!-- Buttons -->
+              <div class="flex gap-3 mt-6">
+                <button
+                  type="button"
+                  id="backSignupStep"
+                  class="btn-secondary flex-1 py-3 font-semibold text-base rounded-lg"
+                >
+                  ← Back
+                </button>
+                <button
+                  type="submit"
+                  class="btn-primary flex-1 py-3 font-semibold text-base rounded-lg hover:shadow-lg"
+                >
+                  Create Account
+                </button>
+              </div>
+            </div>
+          </form>
+        </section>
+      </div>
+
+      <!-- Footer -->
+      <div class="text-center mt-6 text-sm text-gray-600">
+        <p>© 2026 OrdinaTrack. All rights reserved.</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script src="../Assets/js/JQuery.js" defer></script>
+  <script src="../Assets/js/auth.js" defer></script>
+  <script src="../Assets/js/auth-api.js" defer></script>
+  
+  <!-- Password Toggle Helper -->
+  <script>
+    function togglePasswordVisibility(inputId) {
+      const input = document.getElementById(inputId);
+      const button = event.target.closest('button');
+      
+      if (input.type === 'password') {
+        input.type = 'text';
+        button.textContent = '👁‍🗨';
+      } else {
+        input.type = 'password';
+        button.textContent = '👁';
+      }
+    }
+  </script>
+</body>
+</html>
