@@ -159,8 +159,40 @@ try {
     // Every resource except the public ones requires a valid session.
     if (!in_array($resource, PUBLIC_RESOURCES, true)) {
         require_once __DIR__ . '/src/Controller/AuthController.php';
-        if (!(new AuthController($data))->verifyToken()) {
+        require_once __DIR__ . '/src/Model/AuthModel.php';
+        
+        // Get token from Authorization header or data
+        $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+        $token = null;
+        
+        if (preg_match('/Bearer\s+(.+)/', $authHeader, $m)) {
+            $token = $m[1];
+        } elseif (!empty($data['token'])) {
+            $token = $data['token'];
+        }
+        
+        if (!$token) {
             respond(200, ['statuscode' => 99, 'status' => 'Unauthorized or session has expired']);
+        }
+        
+        // Verify and decode token
+        $decoded = \Ordinatrack\Api\Model\AuthModel::verifyToken($token);
+        if (!$decoded || empty($decoded['user_id'])) {
+            respond(200, ['statuscode' => 99, 'status' => 'Unauthorized or session has expired']);
+        }
+        
+        // Set session user with full user data including role
+        $userId = $decoded['user_id'];
+        $_SESSION['user'] = [
+            'id' => $userId,
+            'user_id' => $userId,
+            'token' => $token
+        ];
+        
+        // Load user from database to get full info including role
+        $user = \Ordinatrack\Api\Model\AuthModel::getUserById($userId);
+        if ($user) {
+            $_SESSION['user'] = array_merge($_SESSION['user'], $user);
         }
     }
 

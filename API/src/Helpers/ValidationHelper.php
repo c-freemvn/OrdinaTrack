@@ -148,6 +148,8 @@ class ValidationHelper
                 'role' => 'required|alpha',
                 'province_id' => 'integer',
                 'district_id' => 'integer',
+                'province_name' => 'alpha_space|max_len,100',
+                'district_name' => 'alpha_space|max_len,100',
                 'branch_name' => 'alpha_space|max_len,255'
             ]
         );

@@ -165,14 +165,18 @@ class AuthModel
     {
         try {
             // Map frontend role names to database role slugs
+            // Note: The form roles should match these keys
             $roleMapping = [
                 'NHQ' => 'nhq_admin',
                 'Province' => 'province_lead',
                 'District' => 'district_lead',
-                'Branch' => 'branch_admin'
+                'Branch' => 'branch_admin',
+                'Admin' => 'admin',
+                'SuperAdmin' => 'admin'
             ];
 
-            $roleSlug = $roleMapping[$role] ?? strtolower($role);
+            // Get the role slug from mapping, or use the role as-is (lowercased)
+            $roleSlug = $roleMapping[$role] ?? strtolower(str_replace(' ', '_', $role));
 
             // Get role ID from database
             $roleRow = Database::fetch(
@@ -181,7 +185,7 @@ class AuthModel
             );
 
             if (!$roleRow) {
-                error_log("Role not found: $role");
+                error_log("Role not found: $role (slug: $roleSlug)");
                 return false;
             }
 
@@ -196,7 +200,7 @@ class AuthModel
                     'INSERT INTO user_roles (user_id, role_id, created_at) VALUES (?, ?, NOW())',
                     [$userId, $roleRow['id']]
                 );
-                error_log("Role assigned to user $userId: $role");
+                error_log("Role assigned to user $userId: $role (slug: $roleSlug)");
             }
 
             return true;
@@ -218,8 +222,32 @@ class AuthModel
         try {
             $role = $userData['role'] ?? '';
             $branchName = $userData['branch_name'] ?? null;
-            $provinceId = $userData['province_id'] ?? null;
-            $districtId = $userData['district_id'] ?? null;
+            $provinceName = $userData['province_name'] ?? null;
+            $districtName = $userData['district_name'] ?? null;
+            
+            // Convert province/district names to IDs if provided
+            $provinceId = null;
+            $districtId = null;
+            
+            if ($provinceName) {
+                $province = Database::fetch(
+                    "SELECT id FROM provinces WHERE name = ?",
+                    [$provinceName]
+                );
+                if ($province) {
+                    $provinceId = $province['id'];
+                }
+            }
+            
+            if ($districtName && $provinceId) {
+                $district = Database::fetch(
+                    "SELECT id FROM districts WHERE name = ? AND province_id = ?",
+                    [$districtName, $provinceId]
+                );
+                if ($district) {
+                    $districtId = $district['id'];
+                }
+            }
 
             // Create or get organization based on role
             $organizationId = null;

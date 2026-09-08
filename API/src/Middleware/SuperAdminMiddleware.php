@@ -15,16 +15,37 @@ class SuperAdminMiddleware
     /**
      * Check if user is super admin
      * 
+     * Checks if user has the 'super_admin' role or is the hardcoded super admin email
+     * 
      * @param object $user The authenticated user object
      * @return bool
      */
     public static function isSuperAdmin($user): bool
     {
-        if (!$user || !isset($user->email)) {
+        if (!$user || !isset($user->id)) {
             return false;
         }
 
-        return $user->email === 'super.admin@ordinatrack.com';
+        // Check by hardcoded email (legacy support)
+        if (isset($user->email) && $user->email === 'super.admin@ordinatrack.com') {
+            return true;
+        }
+
+        // Check by role in database
+        try {
+            $result = Database::fetch(
+                "SELECT 1 FROM user_roles ur
+                 INNER JOIN roles r ON ur.role_id = r.id
+                 WHERE ur.user_id = ? AND r.slug = 'super_admin'",
+                [$user->id]
+            );
+
+            return $result !== false;
+        } catch (\Exception $e) {
+            error_log('Error checking super admin role: ' . $e->getMessage());
+            // Fallback to email check
+            return isset($user->email) && $user->email === 'super.admin@ordinatrack.com';
+        }
     }
 
     /**

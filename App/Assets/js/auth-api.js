@@ -28,14 +28,24 @@ const API = {
   register: () => `/auth/register`,
   requestPasswordReset: () => `/auth/request-password-reset`,
 
-  async post(endpoint, data) {
+  async post(endpoint, data, includeToken = false) {
     try {
       const fullUrl = AUTH_CONFIG.API_BASE + endpoint;
+      const headers = {
+        "Content-Type": "application/json",
+      };
+
+      // Add token to Authorization header for authenticated requests
+      if (includeToken) {
+        const token = localStorage.getItem(AUTH_CONFIG.TOKEN_KEY);
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+      }
+
       const response = await fetch(fullUrl, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: headers,
         body: JSON.stringify(data),
       });
       return await response.json();
@@ -447,8 +457,8 @@ async function handleSignupSubmit(event) {
       first_name: firstName,
       last_name: lastName,
       role: role,
-      province_id: province,
-      district_id: district,
+      province_name: province,
+      district_name: district,
       branch_name: branch,
     });
 
@@ -623,7 +633,7 @@ function checkExistingSession() {
 function redirectToDashboard(user) {
   console.log(user);
   if (!user) {
-    // window.location.href = "/OrdinaTrack/App/pages/index.html";
+    window.location.href = "/OrdinaTrack/App/pages/index.html";
     return;
   }
 
@@ -634,8 +644,8 @@ function redirectToDashboard(user) {
     //   case "admin":
     //   case "nhq":
     //   case "nhq_admin":
-        // path = "/OrdinaTrack/App/pages/nhq-dashboard.html";
-        path = `${AUTH_CONFIG.DASHBAORD_REDIRECT}/${user.role}/index.html`;
+    // path = "/OrdinaTrack/App/pages/nhq-dashboard.html";
+    path = `${AUTH_CONFIG.DASHBAORD_REDIRECT}/${user.role}/index.html`;
     //     break;
     //   case "province":
     //   case "province_lead":
@@ -652,7 +662,7 @@ function redirectToDashboard(user) {
     // }
   }
 
-  // window.location.href = path;
+  window.location.href = path;
 }
 
 function logout() {
