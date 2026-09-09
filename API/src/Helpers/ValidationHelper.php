@@ -143,7 +143,15 @@ class ValidationHelper
         return array_merge(
             self::emailRules(),
             self::passwordRules(),
-            self::nameRules()
+            self::nameRules(),
+            [
+                'role' => 'required|alpha',
+                'province_id' => 'integer',
+                'district_id' => 'integer',
+                'province_name' => 'alpha_space|max_len,100',
+                'district_name' => 'alpha_space|max_len,100',
+                'branch_name' => 'alpha_space|max_len,255'
+            ]
         );
     }
 

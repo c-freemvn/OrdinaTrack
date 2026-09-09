@@ -1,0 +1,325 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base Styles */
+:root {
+  --color-primary: #2563eb;
+  --color-primary-dark: #1e40af;
+  --color-primary-light: #dbeafe;
+  --color-success: #10b981;
+  --color-danger: #ef4444;
+  --color-warning: #f59e0b;
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  @apply bg-gray-50 text-gray-900;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', sans-serif;
+  @apply font-bold text-gray-900;
+}
+
+/* Form Elements */
+input, textarea, select {
+  font-family: 'Inter', sans-serif;
+  transition: all 0.3s ease;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+textarea,
+select {
+  @apply block w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 transition-all duration-300;
+  
+  &:hover {
+    @apply border-gray-400;
+  }
+  
+  &:focus {
+    @apply border-blue-500 ring-2 ring-blue-100 outline-none;
+  }
+  
+  &:disabled {
+    @apply bg-gray-100 text-gray-500 cursor-not-allowed;
+  }
+}
+
+/* Buttons */
+.btn-base {
+  @apply inline-flex items-center justify-center px-4 py-2.5 rounded-lg font-medium transition-all duration-300 cursor-pointer select-none whitespace-nowrap;
+  
+  &:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+}
+
+.btn-primary {
+  @apply btn-base bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 shadow-md hover:shadow-lg;
+}
+
+.btn-secondary {
+  @apply btn-base bg-gray-200 text-gray-800 hover:bg-gray-300 active:bg-gray-400 shadow-sm hover:shadow-md;
+}
+
+.btn-ghost {
+  @apply btn-base bg-transparent text-blue-600 hover:bg-blue-50 active:bg-blue-100;
+}
+
+/* Alerts */
+.alert {
+  @apply rounded-lg border px-4 py-3 transition-all duration-300;
+}
+
+.alert-success {
+  @apply border-green-200 bg-green-50 text-green-800;
+}
+
+.alert-danger {
+  @apply border-red-200 bg-red-50 text-red-800;
+}
+
+.alert-warning {
+  @apply border-amber-200 bg-amber-50 text-amber-800;
+}
+
+.alert-info {
+  @apply border-blue-200 bg-blue-50 text-blue-800;
+}
+
+/* Cards */
+.card {
+  @apply rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow duration-300;
+}
+
+.card-padded {
+  @apply card px-6 py-8 sm:px-8;
+}
+
+/* Animations */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-slide-up {
+  animation: slideInUp 0.5s ease-out;
+}
+
+.animate-slide-down {
+  animation: slideInDown 0.3s ease-out;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Loading State */
+.btn-loading {
+  @apply opacity-80 cursor-wait;
+}
+
+.btn-loading::after {
+  content: '';
+  @apply inline-block h-4 w-4 ml-2 border-2 border-transparent border-t-current rounded-full animate-spin;
+}
+
+/* Focus Styles */
+.focus-ring {
+  @apply outline-none ring-2 ring-offset-2 ring-blue-500;
+}
+
+/* Utility Classes */
+.text-gradient {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.shadow-card {
+  @apply shadow-lg;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.shadow-card-lg {
+  @apply shadow-2xl;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive Utilities */
+@media (max-width: 640px) {
+  .hidden-mobile {
+    display: none;
+  }
+}
+
+@media (min-width: 641px) {
+  .hidden-desktop {
+    display: none;
+  }
+}
+
+/* Input Focus Effects */
+.form-input-group {
+  @apply relative;
+}
+
+.form-input-label {
+  @apply block text-sm font-medium text-gray-700 mb-2 transition-all duration-200;
+}
+
+.form-input-hint {
+  @apply mt-1.5 text-xs text-gray-500 transition-all duration-200;
+}
+
+/* Tab Styles */
+.tabs {
+  @apply flex gap-2 border-b border-gray-200;
+}
+
+.tab-item {
+  @apply px-4 py-3 font-medium text-gray-600 border-b-2 border-transparent cursor-pointer transition-all duration-300 hover:text-gray-800 hover:border-gray-300;
+}
+
+.tab-item.active {
+  @apply text-blue-600 border-b-2 border-blue-600;
+}
+
+/* Panel Animations */
+.panel-enter {
+  @apply animate-fade-in;
+}
+
+.panel-exit {
+  @apply animate-fade-in;
+}
+
+/* Success Check Icon Animation */
+@keyframes checkmark {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-checkmark {
+  animation: checkmark 0.6s ease-out;
+}
+
+/* Form Step Indicator */
+.step-indicator {
+  @apply flex items-center justify-between;
+}
+
+.step {
+  @apply flex flex-col items-center;
+}
+
+.step-number {
+  @apply flex items-center justify-center w-10 h-10 rounded-full border-2 border-gray-300 bg-white text-gray-600 font-semibold transition-all duration-300;
+}
+
+.step.active .step-number {
+  @apply border-blue-600 bg-blue-600 text-white;
+}
+
+.step.completed .step-number {
+  @apply border-green-600 bg-green-600 text-white;
+}
+
+.step-line {
+  @apply flex-1 h-0.5 bg-gray-300 mx-2 transition-all duration-300;
+}
+
+.step.completed ~ .step-line,
+.step.active ~ .step-line {
+  @apply bg-blue-600;
+}
+
+.step-label {
+  @apply text-xs font-medium text-gray-600 mt-2 transition-all duration-300;
+}
+
+.step.active .step-label {
+  @apply text-blue-600;
+}
+
+/* Smooth Transitions */
+* {
+  @apply transition-colors duration-200;
+}
+
+input,
+button,
+a,
+select,
+textarea {
+  @apply transition-all duration-300;
+}

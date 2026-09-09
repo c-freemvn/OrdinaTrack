@@ -56,6 +56,37 @@ class Database
             Config::init();
             $dbConfig = Config::getDatabase();
 
+            // First, try to connect WITHOUT specifying the database
+            // This allows us to create the database if it doesn't exist
+            $dsn = sprintf(
+                'mysql:host=%s;port=%d;charset=%s',
+                $dbConfig['host'],
+                $dbConfig['port'],
+                $dbConfig['charset']
+            );
+
+            $tempConnection = new PDO(
+                $dsn,
+                $dbConfig['user'],
+                $dbConfig['pass'],
+                self::PDO_OPTIONS
+            );
+
+            // Check if database exists
+            $dbName = $dbConfig['name'];
+            $checkDb = $tempConnection->query("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$dbName'");
+            
+            if ($checkDb->rowCount() === 0) {
+                // Database doesn't exist, create it
+                error_log("Database '$dbName' does not exist. Creating it...");
+                $tempConnection->exec("CREATE DATABASE `$dbName` CHARACTER SET {$dbConfig['charset']} COLLATE utf8mb4_unicode_ci");
+                error_log("Database '$dbName' created successfully");
+            }
+
+            // Close the temporary connection
+            $tempConnection = null;
+
+            // Now connect to the actual database
             $dsn = sprintf(
                 'mysql:host=%s;port=%d;dbname=%s;charset=%s',
                 $dbConfig['host'],

@@ -81,7 +81,7 @@ class AuthController
                 ];
             }
 
-            // Attempt registration
+            // Attempt registration with all fields including role and organization data
             $result = AuthModel::register($validatedData);
 
             if ($result['success']) {

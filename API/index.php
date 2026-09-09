@@ -12,7 +12,20 @@ require __DIR__ . '/vendor/autoload.php';
 // Initialize environment configuration
 use Ordinatrack\Api\Config\Config;
 use Ordinatrack\Api\Controller\AuthController;
+use Ordinatrack\Api\Connections\Schema;
+
+// Load Schema class
+require_once __DIR__ . '/src/Connections/schemas.php';
+
 Config::init();
+
+// Initialize database schema (creates tables if they don't exist)
+try {
+    Schema::initialize();
+} catch (\Exception $e) {
+    error_log("Schema initialization failed: " . $e->getMessage());
+    // Continue anyway - tables may already exist
+}
 
 // 1) Never render internals to a client. Log instead.
 ini_set('display_errors', '0');
@@ -127,7 +140,7 @@ try {
     }
 
     // Contain the include path.
-    $routeDir = __DIR__ . '/API/src/Routes/';
+    $routeDir = __DIR__ . '/src/Routes/';
     $realDir  = realpath($routeDir);
     $fullpath = realpath($routeDir . $resource . '.route.php');
     if (
@@ -145,9 +158,41 @@ try {
     // --- AUTH MIDDLEWARE ---
     // Every resource except the public ones requires a valid session.
     if (!in_array($resource, PUBLIC_RESOURCES, true)) {
-        require_once __DIR__ . '/API/src/Controller/AuthController.php';
-        if (!(new AuthController($data))->verifyToken()) {
+        require_once __DIR__ . '/src/Controller/AuthController.php';
+        require_once __DIR__ . '/src/Model/AuthModel.php';
+        
+        // Get token from Authorization header or data
+        $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+        $token = null;
+        
+        if (preg_match('/Bearer\s+(.+)/', $authHeader, $m)) {
+            $token = $m[1];
+        } elseif (!empty($data['token'])) {
+            $token = $data['token'];
+        }
+        
+        if (!$token) {
             respond(200, ['statuscode' => 99, 'status' => 'Unauthorized or session has expired']);
+        }
+        
+        // Verify and decode token
+        $decoded = \Ordinatrack\Api\Model\AuthModel::verifyToken($token);
+        if (!$decoded || empty($decoded['user_id'])) {
+            respond(200, ['statuscode' => 99, 'status' => 'Unauthorized or session has expired']);
+        }
+        
+        // Set session user with full user data including role
+        $userId = $decoded['user_id'];
+        $_SESSION['user'] = [
+            'id' => $userId,
+            'user_id' => $userId,
+            'token' => $token
+        ];
+        
+        // Load user from database to get full info including role
+        $user = \Ordinatrack\Api\Model\AuthModel::getUserById($userId);
+        if ($user) {
+            $_SESSION['user'] = array_merge($_SESSION['user'], $user);
         }
     }
 

@@ -110,8 +110,19 @@ class AuthModel
             Database::execute($query, $params);
             $userId = Database::lastInsertId();
 
-            // Send welcome email
-            try {
+            // Assign role if provided
+            if (!empty($userData['role'])) {
+                self::assignRoleToUser($userId, $userData['role']);
+            }
+
+            // Create organization if needed based on role
+            if (!empty($userData['role'])) {
+                self::setupOrganizationHierarchy($userId, $userData);
+            }
+
+            // Send welcome email (disabled for now to prevent timeout issues)
+            // TODO: Implement async email sending or queue system
+            /*try {
                 $mailService = new MailService();
                 $loginUrl = Config::getString('APP_URL') . '/login';
                 $fullName = trim(($userData['first_name'] ?? '') . ' ' . ($userData['last_name'] ?? ''));
@@ -119,9 +130,9 @@ class AuthModel
             } catch (Exception $e) {
                 error_log("Failed to send welcome email: " . $e->getMessage());
                 // Don't fail the registration if email fails
-            }
+            }*/
 
-            error_log("User registered successfully: {$userData['email']}");
+            error_log("User registered successfully: {$userData['email']} with role: {$userData['role']}");
 
             return [
                 'success' => true,
@@ -140,6 +151,186 @@ class AuthModel
                 'success' => false,
                 'message' => 'An unexpected error occurred'
             ];
+        }
+    }
+
+    /**
+     * Assign a role to a user
+     * 
+     * @param int $userId
+     * @param string $role
+     * @return bool
+     */
+    private static function assignRoleToUser(int $userId, string $role): bool
+    {
+        try {
+            // Map frontend role names to database role slugs
+            // Note: The form roles should match these keys
+            $roleMapping = [
+                'NHQ' => 'nhq_admin',
+                'Province' => 'province_lead',
+                'District' => 'district_lead',
+                'Branch' => 'branch_admin',
+                'Admin' => 'admin',
+                'SuperAdmin' => 'admin'
+            ];
+
+            // Get the role slug from mapping, or use the role as-is (lowercased)
+            $roleSlug = $roleMapping[$role] ?? strtolower(str_replace(' ', '_', $role));
+
+            // Get role ID from database
+            $roleRow = Database::fetch(
+                'SELECT id FROM roles WHERE slug = ? OR name = ?',
+                [$roleSlug, $role]
+            );
+
+            if (!$roleRow) {
+                error_log("Role not found: $role (slug: $roleSlug)");
+                return false;
+            }
+
+            // Check if user already has this role
+            $existing = Database::fetch(
+                'SELECT id FROM user_roles WHERE user_id = ? AND role_id = ?',
+                [$userId, $roleRow['id']]
+            );
+
+            if (!$existing) {
+                Database::execute(
+                    'INSERT INTO user_roles (user_id, role_id, created_at) VALUES (?, ?, NOW())',
+                    [$userId, $roleRow['id']]
+                );
+                error_log("Role assigned to user $userId: $role (slug: $roleSlug)");
+            }
+
+            return true;
+        } catch (Exception $e) {
+            error_log("Error assigning role to user: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Setup organization hierarchy for user based on their role
+     * 
+     * @param int $userId
+     * @param array $userData
+     * @return bool
+     */
+    private static function setupOrganizationHierarchy(int $userId, array $userData): bool
+    {
+        try {
+            $role = $userData['role'] ?? '';
+            $branchName = $userData['branch_name'] ?? null;
+            $provinceName = $userData['province_name'] ?? null;
+            $districtName = $userData['district_name'] ?? null;
+            
+            // Convert province/district names to IDs if provided
+            $provinceId = null;
+            $districtId = null;
+            
+            if ($provinceName) {
+                $province = Database::fetch(
+                    "SELECT id FROM provinces WHERE name = ?",
+                    [$provinceName]
+                );
+                if ($province) {
+                    $provinceId = $province['id'];
+                }
+            }
+            
+            if ($districtName && $provinceId) {
+                $district = Database::fetch(
+                    "SELECT id FROM districts WHERE name = ? AND province_id = ?",
+                    [$districtName, $provinceId]
+                );
+                if ($district) {
+                    $districtId = $district['id'];
+                }
+            }
+
+            // Create or get organization based on role
+            $organizationId = null;
+
+            if ($role === 'NHQ') {
+                // Create National HQ organization if it doesn't exist
+                $nhq = Database::fetch(
+                    "SELECT id FROM organizations WHERE organization_type = 'NHQ' LIMIT 1"
+                );
+
+                if ($nhq) {
+                    $organizationId = $nhq['id'];
+                } else {
+                    Database::execute(
+                        "INSERT INTO organizations (name, organization_type, created_by, created_at) 
+                         VALUES (?, ?, ?, NOW())",
+                        ["National HQ", "NHQ", $userId]
+                    );
+                    $organizationId = Database::lastInsertId();
+                }
+            } elseif ($role === 'Branch' && $branchName && $districtId) {
+                // Get or create branch organization
+                $branch = Database::fetch(
+                    "SELECT id FROM branches WHERE name = ? AND district_id = ? LIMIT 1",
+                    [$branchName, $districtId]
+                );
+
+                if ($branch) {
+                    $organizationId = $branch['organization_id'] ?? null;
+                }
+
+                if (!$organizationId) {
+                    // Create organization for branch
+                    Database::execute(
+                        "INSERT INTO organizations (name, organization_type, created_by, created_at) 
+                         VALUES (?, ?, ?, NOW())",
+                        [$branchName, "Branch", $userId]
+                    );
+                    $organizationId = Database::lastInsertId();
+                }
+            } elseif ($role === 'District' && $districtId) {
+                // Get district organization
+                $district = Database::fetch(
+                    "SELECT organization_id FROM districts WHERE id = ?",
+                    [$districtId]
+                );
+
+                if ($district && $district['organization_id']) {
+                    $organizationId = $district['organization_id'];
+                }
+            } elseif ($role === 'Province' && $provinceId) {
+                // Get province organization
+                $province = Database::fetch(
+                    "SELECT organization_id FROM provinces WHERE id = ?",
+                    [$provinceId]
+                );
+
+                if ($province && $province['organization_id']) {
+                    $organizationId = $province['organization_id'];
+                }
+            }
+
+            // Add user to organization if organization exists
+            if ($organizationId) {
+                $existing = Database::fetch(
+                    "SELECT id FROM organization_members WHERE organization_id = ? AND user_id = ?",
+                    [$organizationId, $userId]
+                );
+
+                if (!$existing) {
+                    Database::execute(
+                        "INSERT INTO organization_members (organization_id, user_id, role, joined_at) 
+                         VALUES (?, ?, ?, NOW())",
+                        [$organizationId, $userId, $role]
+                    );
+                    error_log("User $userId added to organization $organizationId with role $role");
+                }
+            }
+
+            return true;
+        } catch (Exception $e) {
+            error_log("Error setting up organization hierarchy: " . $e->getMessage());
+            return false;
         }
     }
 
@@ -185,16 +376,27 @@ class AuthModel
                 ];
             }
 
+            // Get user's role
+            $roleResult = Database::fetch(
+                'SELECT r.name, r.slug FROM user_roles ur 
+                 JOIN roles r ON ur.role_id = r.id 
+                 WHERE ur.user_id = ? 
+                 LIMIT 1',
+                [$user['id']]
+            );
+
+            $role = $roleResult ? $roleResult['slug'] : 'member';
+
             // Generate JWT token
             $token = self::generateToken($user['id']);
 
             // Update last login
             Database::execute(
-                'UPDATE users SET last_login = NOW() WHERE id = ?',
+                'UPDATE users SET last_login_at = NOW() WHERE id = ?',
                 [$user['id']]
             );
 
-            error_log("User logged in successfully: {$email}");
+            error_log("User logged in successfully: {$email} with role: {$role}");
 
             return [
                 'success' => true,
@@ -204,7 +406,8 @@ class AuthModel
                     'id' => (int)$user['id'],
                     'email' => $user['email'],
                     'first_name' => $user['first_name'],
-                    'last_name' => $user['last_name']
+                    'last_name' => $user['last_name'],
+                    'role' => $role
                 ]
             ];
         } catch (Exception $e) {
@@ -306,8 +509,9 @@ class AuthModel
                 [$resetToken, $expiry, $user['id']]
             );
 
-            // Send reset email
-            try {
+            // Send reset email (disabled to prevent timeout issues)
+            // TODO: Implement async email sending or queue system
+            /*try {
                 $mailService = new MailService();
                 $resetUrlBase = $resetUrlBase ?? Config::getString('APP_URL') . '/reset-password?token=';
                 $resetUrl = $resetUrlBase . $resetToken;
@@ -316,7 +520,7 @@ class AuthModel
             } catch (Exception $e) {
                 error_log("Failed to send reset email: " . $e->getMessage());
                 // Don't fail the request if email fails
-            }
+            }*/
 
             error_log("Password reset requested for user: {$email}");
 
