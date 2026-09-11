@@ -122,22 +122,27 @@ try {
     }
     $segments = array_values(array_filter(explode('/', trim($uri, '/')), 'strlen'));
 
-    if (count($segments) !== 2) {
+    // /{resource}/{action} plus up to 2 extra sub-segments, e.g. /admin/roles/5/permissions
+    if (count($segments) < 2 || count($segments) > 4) {
         respond(404, [
             'statuscode' => 404,
             'status' => 'Invalid endpoint',
-            'message' => 'Expected format: /{resource}/{action}'
+            'message' => 'Expected format: /{resource}/{action}[/{id}[/{sub}]]'
         ]);
     }
-    [$resource, $action] = $segments;
+    $resource = $segments[0];
 
     // Fail CLOSED: reject invalid input, never silently rewrite it.
     if (!in_array($resource, $ALLOWED_ROUTES, true)) {
         respond(404, ['statuscode' => 404, 'status' => 'Route not found']);
     }
-    if (!preg_match('/^[A-Za-z0-9_-]{1,64}$/', $action)) {
-        respond(400, ['statuscode' => 400, 'status' => 'Invalid action']);
+    foreach (array_slice($segments, 1) as $segment) {
+        if (!preg_match('/^[A-Za-z0-9_-]{1,64}$/', $segment)) {
+            respond(400, ['statuscode' => 400, 'status' => 'Invalid action']);
+        }
     }
+    // Handlers receive the remaining path, e.g. "login" or "roles/5/permissions"
+    $action = implode('/', array_slice($segments, 1));
 
     // Contain the include path.
     $routeDir = __DIR__ . '/src/Routes/';
@@ -161,8 +166,17 @@ try {
         require_once __DIR__ . '/src/Controller/AuthController.php';
         require_once __DIR__ . '/src/Model/AuthModel.php';
         
-        // Get token from Authorization header or data
-        $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+        // Get token from Authorization header or data. Apache often strips the
+        // header from $_SERVER, so fall back to the redirect copy / raw headers.
+        $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+        if ($authHeader === '' && function_exists('getallheaders')) {
+            foreach (getallheaders() as $name => $value) {
+                if (strcasecmp($name, 'Authorization') === 0) {
+                    $authHeader = $value;
+                    break;
+                }
+            }
+        }
         $token = null;
         
         if (preg_match('/Bearer\s+(.+)/', $authHeader, $m)) {
@@ -189,11 +203,13 @@ try {
             'token' => $token
         ];
         
-        // Load user from database to get full info including role
-        $user = \Ordinatrack\Api\Model\AuthModel::getUserById($userId);
-        if ($user) {
-            $_SESSION['user'] = array_merge($_SESSION['user'], $user);
+        // Load user from database to get full info including role.
+        // Deleted or deactivated accounts lose access immediately, even with a valid token.
+        $user = \Ordinatrack\Api\Model\AuthModel::getUserById((int)$userId);
+        if (!$user || !$user['is_active']) {
+            respond(200, ['statuscode' => 99, 'status' => 'Unauthorized or session has expired']);
         }
+        $_SESSION['user'] = array_merge($_SESSION['user'], $user);
     }
 
     require_once $fullpath;

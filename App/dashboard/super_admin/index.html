@@ -1,0 +1,731 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Super Admin Dashboard - OrdinaTrack</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              inter: ["Inter", "sans-serif"],
+              poppins: ["Poppins", "sans-serif"],
+            },
+            colors: {
+              primary: "#2563eb",
+              "primary-dark": "#1e40af",
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        transition-property:
+          background-color, border-color, color, fill, stroke;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 150ms;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: #f8fafc;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-family: "Poppins", sans-serif;
+      }
+
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 260px;
+        height: 100vh;
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        overflow-y: auto;
+        z-index: 40;
+      }
+
+      .sidebar-item {
+        padding: 12px 20px;
+        color: #cbd5e1;
+        cursor: pointer;
+        border-left: 3px solid transparent;
+        transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .sidebar-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: #f1f5f9;
+      }
+
+      .sidebar-item.active {
+        background: rgba(37, 99, 235, 0.1);
+        color: #60a5fa;
+        border-left-color: #2563eb;
+      }
+
+      .main-content {
+        margin-left: 260px;
+        padding: 30px;
+      }
+
+      .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .stat-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+      }
+
+      .form-input {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 10px 16px;
+        font-size: 16px;
+        font-family: "Inter", sans-serif;
+        background-color: #f8fafc;
+        color: #1e293b;
+        transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .form-input::placeholder {
+        color: #cbd5e1;
+      }
+
+      .form-input:hover {
+        background-color: #fff;
+        border-color: #e2e8f0;
+      }
+
+      .form-input:focus {
+        outline: none;
+        background-color: #fff;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+      }
+
+      .btn-primary:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .btn-secondary {
+        background-color: #e2e8f0;
+        color: #334155;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .btn-secondary:hover {
+        background-color: #cbd5e1;
+      }
+
+      .btn-danger {
+        background-color: #ef4444;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .btn-danger:hover {
+        background-color: #dc2626;
+      }
+
+      .table-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .table-header {
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 16px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      table th {
+        background: #f8fafc;
+        padding: 12px 16px;
+        text-align: left;
+        font-weight: 600;
+        color: #475569;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      table td {
+        padding: 12px 16px;
+        border-bottom: 1px solid #e2e8f0;
+        color: #334155;
+      }
+
+      table tr:hover {
+        background: #f8fafc;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 50;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal.active {
+        display: flex;
+      }
+
+      .modal-content {
+        background: white;
+        border-radius: 12px;
+        padding: 32px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 16px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .badge-success {
+        background: #dcfce7;
+        color: #166534;
+      }
+
+      .badge-danger {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      .badge-info {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+
+      .alert {
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        margin-bottom: 16px;
+      }
+
+      .alert-success {
+        background-color: #dcfce7;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+      }
+
+      .alert-danger {
+        background-color: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+      }
+
+      .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid #e2e8f0;
+        border-top-color: #2563eb;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          width: 100%;
+          height: auto;
+          position: relative;
+        }
+
+        .main-content {
+          margin-left: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="p-6 border-b border-gray-700">
+        <h2 class="text-xl font-bold text-white">OrdinaTrack</h2>
+        <p class="text-xs text-gray-400 mt-1">Super Admin</p>
+      </div>
+
+      <nav class="mt-6">
+        <div class="sidebar-item active" data-section="dashboard">
+          📊 Dashboard
+        </div>
+        <div class="sidebar-item" data-section="users">👥 Users</div>
+        <div class="sidebar-item" data-section="roles">🎭 Roles</div>
+        <div class="sidebar-item" data-section="permissions">
+          🔐 Permissions
+        </div>
+        <div class="sidebar-item" data-section="activity">📋 Activity Logs</div>
+        <div
+          class="sidebar-item mt-12 cursor-pointer hover:text-red-400"
+          id="logoutBtn"
+        >
+          🚪 Logout
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Dashboard Section -->
+      <section id="dashboard-section" class="section-content">
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
+          <p class="text-gray-600">System overview and statistics</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="stat-card">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm font-medium">Total Users</p>
+                <p
+                  class="text-3xl font-bold text-gray-900 mt-2"
+                  id="stat-total-users"
+                >
+                  0
+                </p>
+              </div>
+              <div class="text-4xl text-blue-100">👥</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm font-medium">Active Users</p>
+                <p
+                  class="text-3xl font-bold text-gray-900 mt-2"
+                  id="stat-active-users"
+                >
+                  0
+                </p>
+              </div>
+              <div class="text-4xl text-green-100">✓</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm font-medium">Total Roles</p>
+                <p
+                  class="text-3xl font-bold text-gray-900 mt-2"
+                  id="stat-total-roles"
+                >
+                  0
+                </p>
+              </div>
+              <div class="text-4xl text-purple-100">🎭</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 text-sm font-medium">
+                  Total Permissions
+                </p>
+                <p
+                  class="text-3xl font-bold text-gray-900 mt-2"
+                  id="stat-total-permissions"
+                >
+                  0
+                </p>
+              </div>
+              <div class="text-4xl text-orange-100">🔐</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="stat-card">
+          <h2 class="text-lg font-bold text-gray-900 mb-4">Recent Activity</h2>
+          <div id="activity-container">
+            <div class="text-center py-8 text-gray-500">Loading...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Users Section -->
+      <section id="users-section" class="section-content hidden">
+        <div class="mb-8 flex justify-between items-center">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">
+              Users Management
+            </h1>
+            <p class="text-gray-600">Manage user accounts and permissions</p>
+          </div>
+          <button class="btn-primary" onclick="openUserModal()">
+            + Add User
+          </button>
+        </div>
+
+        <!-- User List -->
+        <div class="table-container">
+          <div id="users-table-container">
+            <div class="p-8 text-center text-gray-500">Loading users...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Roles Section -->
+      <section id="roles-section" class="section-content hidden">
+        <div class="mb-8 flex justify-between items-center">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">
+              Roles Management
+            </h1>
+            <p class="text-gray-600">Create and manage system roles</p>
+          </div>
+          <button class="btn-primary" onclick="openRoleModal()">
+            + Create Role
+          </button>
+        </div>
+
+        <!-- Roles List -->
+        <div class="table-container">
+          <div id="roles-table-container">
+            <div class="p-8 text-center text-gray-500">Loading roles...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Permissions Section -->
+      <section id="permissions-section" class="section-content hidden">
+        <div class="mb-8 flex justify-between items-center">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">
+              Permissions Management
+            </h1>
+            <p class="text-gray-600">Manage system permissions</p>
+          </div>
+          <button class="btn-primary" onclick="openPermissionModal()">
+            + Create Permission
+          </button>
+        </div>
+
+        <!-- Permissions List -->
+        <div class="table-container">
+          <div id="permissions-table-container">
+            <div class="p-8 text-center text-gray-500">
+              Loading permissions...
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Activity Logs Section -->
+      <section id="activity-section" class="section-content hidden">
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">Activity Logs</h1>
+          <p class="text-gray-600">System activity and audit trail</p>
+        </div>
+
+        <!-- Activity Log Table -->
+        <div class="table-container">
+          <div id="activity-log-container">
+            <div class="p-8 text-center text-gray-500">
+              Loading activity logs...
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- User Modal -->
+    <div class="modal" id="user-modal">
+      <div class="modal-content">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Manage User</h2>
+
+        <form id="user-form" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Email</label
+            >
+            <input
+              type="email"
+              id="user-email"
+              class="form-input w-full"
+              disabled
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Name</label
+            >
+            <input
+              type="text"
+              id="user-name"
+              class="form-input w-full"
+              disabled
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Status</label
+            >
+            <select id="user-status" class="form-input w-full">
+              <option value="1">Active</option>
+              <option value="0">Inactive</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Roles</label
+            >
+            <div id="user-roles-container" class="space-y-2"></div>
+          </div>
+
+          <div class="flex gap-3 mt-6">
+            <button
+              type="button"
+              class="btn-secondary flex-1"
+              onclick="closeUserModal()"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn-primary flex-1">
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Role Modal -->
+    <div class="modal" id="role-modal">
+      <div class="modal-content">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Create Role</h2>
+
+        <form id="role-form" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Role Name</label
+            >
+            <input
+              type="text"
+              id="role-name"
+              class="form-input w-full"
+              placeholder="e.g., Manager"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Slug</label
+            >
+            <input
+              type="text"
+              id="role-slug"
+              class="form-input w-full"
+              placeholder="e.g., manager"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Description</label
+            >
+            <textarea
+              id="role-description"
+              class="form-input w-full"
+              rows="3"
+              placeholder="Role description"
+            ></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Permissions</label
+            >
+            <div
+              id="role-permissions-container"
+              class="space-y-2 max-h-40 overflow-y-auto"
+            ></div>
+          </div>
+
+          <div class="flex gap-3 mt-6">
+            <button
+              type="button"
+              class="btn-secondary flex-1"
+              onclick="closeRoleModal()"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn-primary flex-1">
+              Create Role
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Permission Modal -->
+    <div class="modal" id="permission-modal">
+      <div class="modal-content">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Create Permission</h2>
+
+        <form id="permission-form" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Permission Name</label
+            >
+            <input
+              type="text"
+              id="permission-name"
+              class="form-input w-full"
+              placeholder="e.g., Create User"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Slug</label
+            >
+            <input
+              type="text"
+              id="permission-slug"
+              class="form-input w-full"
+              placeholder="e.g., create_user"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Resource</label
+            >
+            <input
+              type="text"
+              id="permission-resource"
+              class="form-input w-full"
+              placeholder="e.g., users"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Action</label
+            >
+            <select id="permission-action" class="form-input w-full">
+              <option value="">Select action</option>
+              <option value="create">Create</option>
+              <option value="read">Read</option>
+              <option value="update">Update</option>
+              <option value="delete">Delete</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Description</label
+            >
+            <textarea
+              id="permission-description"
+              class="form-input w-full"
+              rows="3"
+              placeholder="Permission description"
+            ></textarea>
+          </div>
+
+          <div class="flex gap-3 mt-6">
+            <button
+              type="button"
+              class="btn-secondary flex-1"
+              onclick="closePermissionModal()"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn-primary flex-1">
+              Create Permission
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="../../Assets/js/super-admin.js" defer></script>
+  </body>
+</html>

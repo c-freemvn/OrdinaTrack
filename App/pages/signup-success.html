@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Account Created | ESOCS Access</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="../Assets/css/style.css" />
+  </head>
+  <body class="auth-shell auth-page" data-page="signup-success">
+    <main class="auth-layout">
+      <section class="auth-form-panel">
+        <div class="auth-card auth-card-main signup-success">
+          <a
+            href="index.html"
+            class="auth-close-btn"
+            aria-label="Return to landing page"
+            >&times;</a
+          >
+
+          <div class="signup-success-brand">
+            <img src="../Assets/images/esocs%20cherubim-Logo.png" alt="" />
+            <span>ESOCS Access</span>
+          </div>
+
+          <header class="signup-success-hero">
+            <div class="signup-success-badge" aria-hidden="true">
+              <svg viewBox="0 0 52 52" focusable="false">
+                <path d="M14 27l8.5 8.5L39 18" />
+              </svg>
+            </div>
+            <span class="signup-success-kicker">Account created</span>
+            <h1 id="successTitle" tabindex="-1">Welcome aboard!</h1>
+            <p id="successLead">
+              Your ESOCS office account is ready. Here's how to get started.
+            </p>
+          </header>
+
+          <dl class="signup-success-summary" id="successSummary" hidden>
+            <div>
+              <dt>Secretary</dt>
+              <dd id="summaryName"></dd>
+            </div>
+            <div>
+              <dt>Role</dt>
+              <dd id="summaryRole"></dd>
+            </div>
+            <div class="is-wide">
+              <dt>Church email</dt>
+              <dd id="summaryEmail"></dd>
+            </div>
+            <div class="is-wide">
+              <dt>Office</dt>
+              <dd id="summaryOffice"></dd>
+            </div>
+          </dl>
+
+          <section
+            class="signup-success-steps"
+            aria-labelledby="nextStepsTitle"
+          >
+            <h2 id="nextStepsTitle">What to do next</h2>
+            <ol role="list">
+              <li>
+                <div>
+                  <strong class="signup-success-step-title"
+                    >Sign in to your account</strong
+                  >
+                  <span class="signup-success-step-copy">
+                    Use <strong id="signinStepEmail">your church email</strong>
+                    and the password you just created.
+                  </span>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <strong class="signup-success-step-title" id="roleStepTitle"
+                    >Explore your dashboard</strong
+                  >
+                  <span class="signup-success-step-copy" id="roleStepCopy">
+                    You'll land on your office dashboard, with the tools for
+                    your role.
+                  </span>
+                </div>
+              </li>
+              <li>
+                <div>
+                  <strong class="signup-success-step-title"
+                    >Keep your password safe</strong
+                  >
+                  <span class="signup-success-step-copy">
+                    If you ever forget it, use "Forgotten password?" on the
+                    sign-in page to reset it.
+                  </span>
+                </div>
+              </li>
+            </ol>
+          </section>
+
+          <div class="signup-success-actions">
+            <a
+              class="btn auth-primary-btn"
+              id="continueToSignin"
+              href="signin.html"
+            >
+              Continue to Sign In
+              <span aria-hidden="true">&rarr;</span>
+            </a>
+          </div>
+
+          <p class="signup-success-help">
+            Spotted a mistake in your office details? Contact your National HQ
+            administrator to correct it.
+          </p>
+        </div>
+      </section>
+    </main>
+    <script src="../Assets/js/signup-success.js" defer></script>
+  </body>
+</html>

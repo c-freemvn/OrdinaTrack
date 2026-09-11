@@ -2,149 +2,119 @@
 
 namespace Ordinatrack\Api\Controller;
 
+use Ordinatrack\Api\Helpers\ValidationHelper;
+use Ordinatrack\Api\Model\LocationModel;
 use Ordinatrack\Api\Model\SuperAdminModel;
+use PDOException;
+use RuntimeException;
+use Throwable;
 
 /**
  * SuperAdminController
- * 
+ *
  * Handles all Super Admin API endpoints for:
  * - Role management
  * - Permission management
  * - User management
  * - System statistics
- * 
+ *
+ * Handlers receive the authenticated user (object), the request data (array) and,
+ * for /{resource}/{id} routes, the numeric id. A 'status' key in the returned array
+ * is the HTTP status code; the route strips it before encoding.
+ *
  * Note: Authorization is handled by SuperAdminMiddleware in the routes
  */
 class SuperAdminController
 {
+    private const NAME_RULE = 'required|alpha_space|max_len,50';
+    private const PASSWORD_RULE = 'required|min_len,8|max_len,128';
+
+    /** Readable messages for the GUMP rules used here (%s = rule parameter) */
+    private const RULE_MESSAGES = [
+        'required' => 'is required',
+        'valid_email' => 'must be a valid email address',
+        'min_len' => 'must be at least %s characters',
+        'max_len' => 'must be at most %s characters',
+        'alpha_space' => 'may only contain letters and spaces',
+        'alpha_numeric_dash' => 'may only contain letters, numbers, dashes and underscores',
+        'regex' => "may only contain letters, numbers, spaces and . / ' & ( ) -",
+    ];
+
+    /**
+     * Location names: letters, digits, spaces and . / ' & ( ) - (e.g. "OGBA/EGBEMA").
+     * Same rule as registration's ORG_NAME_PATTERN in ValidationHelper, so any name
+     * created here can also be submitted at signup.
+     */
+    private const LOCATION_NAME_PATTERN = '/^[\p{L}\p{N} .\/\'&()-]+$/u';
+
     // ==================== ROLES ENDPOINTS ====================
 
     /**
      * GET /admin/roles - Get all roles
      */
-    public static function getRoles($user, $method, $body)
+    public static function getRoles($user, array $data): array
     {
-        $roles = SuperAdminModel::getAllRoles();
-        
-        if ($roles === false) {
-            return [
-                'success' => false,
-                'message' => 'Failed to retrieve roles',
-                'status' => 500
-            ];
-        }
-
-        return [
-            'success' => true,
-            'data' => $roles,
-            'count' => count($roles)
-        ];
+        return self::handle(function () {
+            $roles = SuperAdminModel::getAllRoles();
+            return ['success' => true, 'data' => $roles, 'count' => count($roles)];
+        });
     }
 
     /**
      * GET /admin/roles/:id - Get role with permissions
      */
-    public static function getRole($user, $method, $body, $id)
+    public static function getRole($user, array $data, int $id): array
     {
-        $role = SuperAdminModel::getRoleWithPermissions($id);
-        
-        if (!$role) {
-            return [
-                'success' => false,
-                'message' => 'Role not found',
-                'status' => 404
-            ];
-        }
-
-        return [
-            'success' => true,
-            'data' => $role
-        ];
+        return self::handle(function () use ($id) {
+            $role = SuperAdminModel::getRoleWithPermissions($id);
+            return $role
+                ? ['success' => true, 'data' => $role]
+                : ['success' => false, 'message' => 'Role not found', 'status' => 404];
+        });
     }
 
     /**
-     * POST /admin/roles - Create new role
+     * POST /admin/roles - Create role {name, slug?, description?, permission_ids?}
      */
-    public static function createRole($user, $method, $body)
+    public static function createRole($user, array $data): array
     {
-        if (empty($body->name) || empty($body->slug)) {
-            return [
-                'success' => false,
-                'message' => 'Missing required fields: name, slug',
-                'status' => 400
-            ];
-        }
-
-        $roleData = [
-            'name' => $body->name,
-            'slug' => strtolower(str_replace(' ', '_', $body->slug)),
-            'description' => $body->description ?? null
-        ];
-
-        $role = SuperAdminModel::createRole($roleData);
-        
-        if (!$role) {
-            return [
-                'success' => false,
-                'message' => 'Failed to create role',
-                'status' => 500
-            ];
-        }
-
-        return [
-            'success' => true,
-            'message' => 'Role created successfully',
-            'data' => $role
-        ];
+        return self::handle(function () use ($data) {
+            $role = SuperAdminModel::createRole($data, self::idList($data, 'permission_ids', false));
+            return ['success' => true, 'message' => 'Role created successfully', 'data' => $role, 'status' => 201];
+        });
     }
 
     /**
-     * PUT /admin/roles/:id - Update role
+     * PUT /admin/roles/:id - Update role {name?, slug?, description?, permission_ids?}
      */
-    public static function updateRole($user, $method, $body, $id)
+    public static function updateRole($user, array $data, int $id): array
     {
-        $roleData = [
-            'name' => $body->name ?? null,
-            'slug' => isset($body->slug) ? strtolower(str_replace(' ', '_', $body->slug)) : null,
-            'description' => $body->description ?? null
-        ];
-
-        $role = SuperAdminModel::updateRole($id, $roleData);
-        
-        if (!$role) {
-            return [
-                'success' => false,
-                'message' => 'Failed to update role',
-                'status' => 500
-            ];
-        }
-
-        return [
-            'success' => true,
-            'message' => 'Role updated successfully',
-            'data' => $role
-        ];
+        return self::handle(function () use ($data, $id) {
+            $role = SuperAdminModel::updateRole($id, $data, self::idList($data, 'permission_ids', false));
+            return ['success' => true, 'message' => 'Role updated successfully', 'data' => $role];
+        });
     }
 
     /**
      * DELETE /admin/roles/:id - Delete role
      */
-    public static function deleteRole($user, $method, $body, $id)
+    public static function deleteRole($user, array $data, int $id): array
     {
-        $result = SuperAdminModel::deleteRole($id);
-        
-        if (!$result) {
-            return [
-                'success' => false,
-                'message' => 'Failed to delete role or role is protected',
-                'status' => 500
-            ];
-        }
+        return self::handle(function () use ($id) {
+            SuperAdminModel::deleteRole($id);
+            return ['success' => true, 'message' => 'Role deleted successfully'];
+        });
+    }
 
-        return [
-            'success' => true,
-            'message' => 'Role deleted successfully'
-        ];
+    /**
+     * PUT /admin/roles/:id/permissions - Replace role permissions {permission_ids: []} ([] clears)
+     */
+    public static function setRolePermissions($user, array $data, int $id): array
+    {
+        return self::handle(function () use ($data, $id) {
+            $role = SuperAdminModel::setRolePermissions($id, self::idList($data, 'permission_ids'));
+            return ['success' => true, 'message' => 'Role permissions updated successfully', 'data' => $role];
+        });
     }
 
     // ==================== PERMISSIONS ENDPOINTS ====================
@@ -152,301 +122,266 @@ class SuperAdminController
     /**
      * GET /admin/permissions - Get all permissions
      */
-    public static function getPermissions($user, $method, $body)
+    public static function getPermissions($user, array $data): array
     {
-        $permissions = SuperAdminModel::getAllPermissions();
-        
-        if ($permissions === false) {
-            return [
-                'success' => false,
-                'message' => 'Failed to retrieve permissions',
-                'status' => 500
-            ];
-        }
-
-        return [
-            'success' => true,
-            'data' => $permissions,
-            'count' => count($permissions)
-        ];
+        return self::handle(function () {
+            $permissions = SuperAdminModel::getAllPermissions();
+            return ['success' => true, 'data' => $permissions, 'count' => count($permissions)];
+        });
     }
 
     /**
      * GET /admin/permissions/by-resource - Get permissions grouped by resource
      */
-    public static function getPermissionsByResource($user, $method, $body)
+    public static function getPermissionsByResource($user, array $data): array
     {
-        $permissions = SuperAdminModel::getPermissionsByResource();
-        
-        if ($permissions === false) {
-            return [
-                'success' => false,
-                'message' => 'Failed to retrieve permissions',
-                'status' => 500
-            ];
-        }
-
-        return [
-            'success' => true,
-            'data' => $permissions
-        ];
+        return self::handle(fn() => ['success' => true, 'data' => SuperAdminModel::getPermissionsByResource()]);
     }
 
     /**
-     * POST /admin/permissions - Create new permission
+     * POST /admin/permissions - Create permission {name, slug?, resource?, action?, description?}
      */
-    public static function createPermission($user, $method, $body)
+    public static function createPermission($user, array $data): array
     {
-        if (empty($body->name) || empty($body->slug)) {
-            return [
-                'success' => false,
-                'message' => 'Missing required fields: name, slug',
-                'status' => 400
-            ];
-        }
-
-        $permData = [
-            'name' => $body->name,
-            'slug' => strtolower(str_replace(' ', '_', $body->slug)),
-            'resource' => $body->resource ?? null,
-            'action' => $body->action ?? null,
-            'description' => $body->description ?? null
-        ];
-
-        $permission = SuperAdminModel::createPermission($permData);
-        
-        if (!$permission) {
-            return [
-                'success' => false,
-                'message' => 'Failed to create permission',
-                'status' => 500
-            ];
-        }
-
-        return [
-            'success' => true,
-            'message' => 'Permission created successfully',
-            'data' => $permission
-        ];
+        return self::handle(function () use ($data) {
+            $permission = SuperAdminModel::createPermission($data);
+            return ['success' => true, 'message' => 'Permission created successfully', 'data' => $permission, 'status' => 201];
+        });
     }
 
     /**
      * PUT /admin/permissions/:id - Update permission
      */
-    public static function updatePermission($user, $method, $body, $id)
+    public static function updatePermission($user, array $data, int $id): array
     {
-        $permData = [
-            'name' => $body->name ?? null,
-            'slug' => isset($body->slug) ? strtolower(str_replace(' ', '_', $body->slug)) : null,
-            'resource' => $body->resource ?? null,
-            'action' => $body->action ?? null,
-            'description' => $body->description ?? null
-        ];
-
-        $permission = SuperAdminModel::updatePermission($id, $permData);
-        
-        if (!$permission) {
-            return [
-                'success' => false,
-                'message' => 'Failed to update permission',
-                'status' => 500
-            ];
-        }
-
-        return [
-            'success' => true,
-            'message' => 'Permission updated successfully',
-            'data' => $permission
-        ];
+        return self::handle(function () use ($data, $id) {
+            $permission = SuperAdminModel::updatePermission($id, $data);
+            return ['success' => true, 'message' => 'Permission updated successfully', 'data' => $permission];
+        });
     }
 
     /**
      * DELETE /admin/permissions/:id - Delete permission
      */
-    public static function deletePermission($user, $method, $body, $id)
+    public static function deletePermission($user, array $data, int $id): array
     {
-        $result = SuperAdminModel::deletePermission($id);
-        
-        if (!$result) {
-            return [
-                'success' => false,
-                'message' => 'Failed to delete permission',
-                'status' => 500
-            ];
-        }
-
-        return [
-            'success' => true,
-            'message' => 'Permission deleted successfully'
-        ];
-    }
-
-    /**
-     * POST /admin/roles/:id/permissions - Assign permissions to role
-     */
-    public static function assignPermissionsToRole($user, $method, $body, $id)
-    {
-        if (empty($body->permission_ids) || !is_array($body->permission_ids)) {
-            return [
-                'success' => false,
-                'message' => 'Missing required field: permission_ids (array)',
-                'status' => 400
-            ];
-        }
-
-        $result = SuperAdminModel::assignPermissionsToRole($id, $body->permission_ids);
-        
-        if (!$result) {
-            return [
-                'success' => false,
-                'message' => 'Failed to assign permissions to role',
-                'status' => 500
-            ];
-        }
-
-        $role = SuperAdminModel::getRoleWithPermissions($id);
-
-        return [
-            'success' => true,
-            'message' => 'Permissions assigned to role successfully',
-            'data' => $role
-        ];
+        return self::handle(function () use ($id) {
+            SuperAdminModel::deletePermission($id);
+            return ['success' => true, 'message' => 'Permission deleted successfully'];
+        });
     }
 
     // ==================== USERS ENDPOINTS ====================
 
     /**
-     * GET /admin/users - Get all users
+     * GET /admin/users?limit=&offset=&search= - Get a page of users
      */
-    public static function getUsers($user, $method, $body)
+    public static function getUsers($user, array $data): array
     {
-        $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 50;
-        $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
+        return self::handle(function () use ($data) {
+            $limit = (int)($data['limit'] ?? 50);
+            $offset = (int)($data['offset'] ?? 0);
+            $result = SuperAdminModel::getUsers($limit, $offset, (string)($data['search'] ?? ''));
 
-        $users = SuperAdminModel::getAllUsers($limit, $offset);
-        $total = SuperAdminModel::getUserCount();
-        
-        if ($users === false) {
             return [
-                'success' => false,
-                'message' => 'Failed to retrieve users',
-                'status' => 500
+                'success' => true,
+                'data' => $result['users'],
+                'pagination' => ['limit' => $limit, 'offset' => $offset, 'total' => $result['total']],
             ];
-        }
-
-        return [
-            'success' => true,
-            'data' => $users,
-            'pagination' => [
-                'limit' => $limit,
-                'offset' => $offset,
-                'total' => $total
-            ]
-        ];
+        });
     }
 
     /**
-     * GET /admin/users/:id - Get user with permissions
+     * GET /admin/users/:id - Get user with roles and permissions
      */
-    public static function getUser($user, $method, $body, $id)
+    public static function getUser($user, array $data, int $id): array
     {
-        $userData = SuperAdminModel::getUserWithPermissions($id);
-        
-        if (!$userData) {
-            return [
-                'success' => false,
-                'message' => 'User not found',
-                'status' => 404
-            ];
-        }
-
-        return [
-            'success' => true,
-            'data' => $userData
-        ];
+        return self::handle(function () use ($id) {
+            $userData = SuperAdminModel::getUserWithPermissions($id);
+            return $userData
+                ? ['success' => true, 'data' => $userData]
+                : ['success' => false, 'message' => 'User not found', 'status' => 404];
+        });
     }
 
     /**
-     * PUT /admin/users/:id/roles - Assign roles to user
+     * POST /admin/users - Create user {email, password, first_name, last_name, phone?, is_active?, role_ids?}
      */
-    public static function assignRolesToUser($user, $method, $body, $id)
+    public static function createUser($user, array $data): array
     {
-        if (empty($body->role_ids) || !is_array($body->role_ids)) {
-            return [
-                'success' => false,
-                'message' => 'Missing required field: role_ids (array)',
-                'status' => 400
-            ];
-        }
+        return self::handle(function () use ($data) {
+            [$input, $error] = self::validateInput($data, [
+                'email' => 'required|valid_email',
+                'password' => self::PASSWORD_RULE,
+                'first_name' => self::NAME_RULE,
+                'last_name' => self::NAME_RULE,
+                'phone' => 'max_len,20',
+            ]);
+            if ($error) {
+                return $error;
+            }
+            if (!ValidationHelper::isStrongPassword($input['password'])) {
+                return self::weakPasswordError();
+            }
 
-        $result = SuperAdminModel::assignRolesToUser($id, $body->role_ids);
-        
-        if (!$result) {
-            return [
-                'success' => false,
-                'message' => 'Failed to assign roles to user',
-                'status' => 500
-            ];
-        }
+            $input['email'] = strtolower($input['email']);
+            $input['is_active'] = self::bool($data, 'is_active') ?? true;
 
-        $userData = SuperAdminModel::getUserWithPermissions($id);
-
-        return [
-            'success' => true,
-            'message' => 'Roles assigned to user successfully',
-            'data' => $userData
-        ];
+            $created = SuperAdminModel::createUser($input, self::idList($data, 'role_ids', false) ?? []);
+            return ['success' => true, 'message' => 'User created successfully', 'data' => $created, 'status' => 201];
+        });
     }
 
     /**
-     * PUT /admin/users/:id/status - Update user status
+     * PUT /admin/users/:id - Update profile {email?, first_name?, last_name?, phone?}
      */
-    public static function updateUserStatus($user, $method, $body, $id)
+    public static function updateUser($user, array $data, int $id): array
     {
-        if (!isset($body->is_active)) {
-            return [
-                'success' => false,
-                'message' => 'Missing required field: is_active (boolean)',
-                'status' => 400
-            ];
-        }
+        return self::handle(function () use ($data, $id) {
+            $rules = array_intersect_key([
+                'email' => 'required|valid_email',
+                'first_name' => self::NAME_RULE,
+                'last_name' => self::NAME_RULE,
+                'phone' => 'max_len,20',
+            ], $data);
+            if (!$rules) {
+                return ['success' => false, 'message' => 'No fields to update', 'status' => 422];
+            }
 
-        $userData = SuperAdminModel::updateUserStatus($id, $body->is_active);
-        
-        if (!$userData) {
-            return [
-                'success' => false,
-                'message' => 'Failed to update user status',
-                'status' => 500
-            ];
-        }
+            [$input, $error] = self::validateInput($data, $rules);
+            if ($error) {
+                return $error;
+            }
+            if (isset($input['email'])) {
+                $input['email'] = strtolower($input['email']);
+            }
 
-        return [
-            'success' => true,
-            'message' => 'User status updated successfully',
-            'data' => $userData
-        ];
+            $updated = SuperAdminModel::updateUser($id, $input);
+            return ['success' => true, 'message' => 'User updated successfully', 'data' => $updated];
+        });
+    }
+
+    /**
+     * PUT /admin/users/:id/roles - Replace user roles {role_ids: []} ([] removes all)
+     */
+    public static function setUserRoles($user, array $data, int $id): array
+    {
+        return self::handle(function () use ($user, $data, $id) {
+            $updated = SuperAdminModel::setUserRoles($id, self::idList($data, 'role_ids'), (int)$user->id);
+            return ['success' => true, 'message' => 'User roles updated successfully', 'data' => $updated];
+        });
+    }
+
+    /**
+     * PUT /admin/users/:id/status - Activate/deactivate {is_active: bool}
+     */
+    public static function setUserStatus($user, array $data, int $id): array
+    {
+        return self::handle(function () use ($user, $data, $id) {
+            $isActive = self::bool($data, 'is_active');
+            if ($isActive === null) {
+                return ['success' => false, 'message' => 'Missing required field: is_active (boolean)', 'status' => 422];
+            }
+
+            $updated = SuperAdminModel::setUserStatus($id, $isActive, (int)$user->id);
+            return [
+                'success' => true,
+                'message' => $isActive ? 'User activated successfully' : 'User deactivated successfully',
+                'data' => $updated,
+            ];
+        });
+    }
+
+    /**
+     * PUT /admin/users/:id/password - Set a new password {password}
+     */
+    public static function resetUserPassword($user, array $data, int $id): array
+    {
+        return self::handle(function () use ($data, $id) {
+            [$input, $error] = self::validateInput($data, ['password' => self::PASSWORD_RULE]);
+            if ($error) {
+                return $error;
+            }
+            if (!ValidationHelper::isStrongPassword($input['password'])) {
+                return self::weakPasswordError();
+            }
+
+            SuperAdminModel::resetUserPassword($id, $input['password']);
+            return ['success' => true, 'message' => 'Password reset successfully'];
+        });
     }
 
     /**
      * DELETE /admin/users/:id - Delete user (soft delete)
      */
-    public static function deleteUser($user, $method, $body, $id)
+    public static function deleteUser($user, array $data, int $id): array
     {
-        $result = SuperAdminModel::deleteUser($id);
-        
-        if (!$result) {
-            return [
-                'success' => false,
-                'message' => 'Failed to delete user or user is protected',
-                'status' => 500
-            ];
-        }
+        return self::handle(function () use ($user, $id) {
+            SuperAdminModel::deleteUser($id, (int)$user->id);
+            return ['success' => true, 'message' => 'User deleted successfully'];
+        });
+    }
 
-        return [
-            'success' => true,
-            'message' => 'User deleted successfully'
-        ];
+    // ==================== LOCATIONS ENDPOINTS (provinces / districts / branches) ====================
+
+    /**
+     * GET /admin/{provinces|districts|branches}?province_id=&district_id=&search=
+     */
+    public static function listLocations($user, array $data, string $type): array
+    {
+        return self::handle(function () use ($data, $type) {
+            $locations = LocationModel::getAll($type, $data);
+            return ['success' => true, 'data' => $locations, 'count' => count($locations)];
+        });
+    }
+
+    /**
+     * POST /admin/{type} - Create {name, code?, description?, administrator_id?, is_active?,
+     * province_id (districts) | district_id, address, contact_* (branches)}
+     */
+    public static function createLocation($user, array $data, string $type): array
+    {
+        return self::handle(function () use ($data, $type) {
+            [$input, $error] = self::locationInput($data, $type, true);
+            if ($error) {
+                return $error;
+            }
+
+            $location = LocationModel::create($type, $input);
+            return [
+                'success' => true,
+                'message' => LocationModel::label($type) . ' created successfully',
+                'data' => $location,
+                'status' => 201,
+            ];
+        });
+    }
+
+    /**
+     * PUT /admin/{type}/:id - Partial update (changing the parent moves the location)
+     */
+    public static function updateLocation($user, array $data, string $type, int $id): array
+    {
+        return self::handle(function () use ($data, $type, $id) {
+            [$input, $error] = self::locationInput($data, $type, false);
+            if ($error) {
+                return $error;
+            }
+
+            $location = LocationModel::update($type, $id, $input);
+            return ['success' => true, 'message' => LocationModel::label($type) . ' updated successfully', 'data' => $location];
+        });
+    }
+
+    /**
+     * DELETE /admin/{type}/:id - Only locations without children can be deleted
+     */
+    public static function deleteLocation($user, array $data, string $type, int $id): array
+    {
+        return self::handle(function () use ($type, $id) {
+            LocationModel::delete($type, $id);
+            return ['success' => true, 'message' => LocationModel::label($type) . ' deleted successfully'];
+        });
     }
 
     // ==================== SYSTEM ENDPOINTS ====================
@@ -454,36 +389,165 @@ class SuperAdminController
     /**
      * GET /admin/stats - Get system statistics
      */
-    public static function getSystemStats($user, $method, $body)
+    public static function getSystemStats($user, array $data): array
     {
-        $stats = SuperAdminModel::getSystemStats();
+        return self::handle(fn() => ['success' => true, 'data' => SuperAdminModel::getSystemStats()]);
+    }
 
+    /**
+     * GET /admin/activity?limit= - Get recent audit log entries
+     */
+    public static function getRecentActivity($user, array $data): array
+    {
+        return self::handle(function () use ($data) {
+            $activity = SuperAdminModel::getRecentActivity((int)($data['limit'] ?? 20));
+            return ['success' => true, 'data' => $activity, 'count' => count($activity)];
+        });
+    }
+
+    // ==================== HELPERS ====================
+
+    /**
+     * Run a handler, mapping model exceptions to error responses
+     */
+    private static function handle(callable $action): array
+    {
+        try {
+            return $action();
+        } catch (PDOException $e) {
+            error_log('Super admin database error: ' . $e->getMessage());
+        } catch (RuntimeException $e) {
+            // Business-rule failures carry their HTTP status (4xx) as the exception code
+            $status = (int)$e->getCode();
+            if ($status >= 400 && $status < 500) {
+                return ['success' => false, 'message' => $e->getMessage(), 'status' => $status];
+            }
+            error_log('Super admin error: ' . $e->getMessage());
+        } catch (Throwable $e) {
+            error_log("Super admin error: {$e->getMessage()} @ {$e->getFile()}:{$e->getLine()}");
+        }
+
+        return ['success' => false, 'message' => 'An unexpected error occurred', 'status' => 500];
+    }
+
+    /**
+     * Validate with GUMP rules. Returns [input, null] on success or [null, errorResponse].
+     * GUMP's raw errors echo submitted values (passwords included), so only readable
+     * per-field messages are returned.
+     */
+    private static function validateInput(array $data, array $rules): array
+    {
+        $validation = ValidationHelper::validate($data, $rules);
+        if (!$validation['is_valid']) {
+            $errors = [];
+            foreach ($validation['errors'] as $key => $error) {
+                if (!is_array($error)) {
+                    $errors[$key] = (string)$error;
+                    continue;
+                }
+                $field = $error['field'] ?? $key;
+                $template = self::RULE_MESSAGES[$error['rule'] ?? ''] ?? 'is invalid';
+                $errors[$field] = ucfirst(str_replace('_', ' ', $field)) . ' ' . vsprintf($template, (array)($error['params'] ?? []));
+            }
+            return [null, ['success' => false, 'message' => implode('. ', $errors), 'errors' => $errors, 'status' => 422]];
+        }
+
+        $input = $validation['data'];
+        foreach ($input as $key => $value) {
+            if (is_string($value) && $key !== 'password') {
+                $input[$key] = trim($value);
+            }
+        }
+        return [$input, null];
+    }
+
+    /**
+     * Validate location input: text fields through GUMP, ids and the active flag here.
+     * On update only the fields present in the request are validated.
+     */
+    private static function locationInput(array $data, string $type, bool $creating): array
+    {
+        $rules = [
+            'name' => ['required', 'regex' => [self::LOCATION_NAME_PATTERN], 'max_len' => 100],
+            'code' => 'alpha_numeric_dash|max_len,10',
+            'description' => 'max_len,1000',
+        ];
+        if ($type === 'branches') {
+            $rules += [
+                'address' => 'max_len,500',
+                'contact_person' => 'max_len,100',
+                'contact_phone' => 'max_len,20',
+                'contact_email' => 'valid_email|max_len,255',
+            ];
+        }
+        if (!$creating) {
+            $rules = array_intersect_key($rules, $data);
+        }
+
+        $input = [];
+        if ($rules) {
+            [$input, $error] = self::validateInput($data, $rules);
+            if ($error) {
+                return [null, $error];
+            }
+        }
+
+        foreach (['province_id', 'district_id', 'administrator_id'] as $key) {
+            if (!array_key_exists($key, $data)) {
+                continue;
+            }
+            $value = $data[$key];
+            if ($value !== null && $value !== '' && !is_numeric($value)) {
+                $label = ucfirst(str_replace('_', ' ', $key));
+                return [null, ['success' => false, 'message' => "$label must be a numeric id", 'status' => 422]];
+            }
+            $input[$key] = ($value === null || $value === '') ? null : (int)$value;
+        }
+
+        $isActive = self::bool($data, 'is_active');
+        if ($isActive !== null) {
+            $input['is_active'] = $isActive;
+        }
+
+        if (!$creating && !$input) {
+            return [null, ['success' => false, 'message' => 'No fields to update', 'status' => 422]];
+        }
+        return [$input, null];
+    }
+
+    private static function weakPasswordError(): array
+    {
         return [
-            'success' => true,
-            'data' => $stats
+            'success' => false,
+            'message' => 'Password must contain uppercase, lowercase, number and special character',
+            'errors' => ['password' => 'Password too weak'],
+            'status' => 422,
         ];
     }
 
     /**
-     * GET /admin/activity - Get recent activity logs
+     * Read an array of numeric ids from the request.
+     * When not required, a missing key returns null (meaning "leave unchanged").
      */
-    public static function getRecentActivity($user, $method, $body)
+    private static function idList(array $data, string $key, bool $required = true): ?array
     {
-        $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 20;
-        $activity = SuperAdminModel::getRecentActivity($limit);
-
-        if ($activity === false) {
-            return [
-                'success' => false,
-                'message' => 'Failed to retrieve activity logs',
-                'status' => 500
-            ];
+        if (!isset($data[$key])) {
+            if ($required) {
+                throw new RuntimeException("Missing required field: $key (array)", 422);
+            }
+            return null;
         }
+        if (!is_array($data[$key]) || array_filter($data[$key], fn($id) => !is_numeric($id))) {
+            throw new RuntimeException("Field $key must be an array of ids", 422);
+        }
+        return $data[$key];
+    }
 
-        return [
-            'success' => true,
-            'data' => $activity,
-            'count' => count($activity)
-        ];
+    private static function bool(array $data, string $key): ?bool
+    {
+        if (!array_key_exists($key, $data)) {
+            return null;
+        }
+        return filter_var($data[$key], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
     }
 }

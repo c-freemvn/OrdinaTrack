@@ -52,6 +52,12 @@ class ValidationHelper
     ];
 
     /**
+     * Province/district/branch names: letters, digits, spaces and . / ' & ( ) -
+     * (e.g. "OGBA/EGBEMA", "NEW PHC - ABULOMA", "OKEHI DISTRICT 1")
+     */
+    private const ORG_NAME_PATTERN = '/^[\p{L}\p{N} .\/\'&()-]+$/u';
+
+    /**
      * Get or initialize GUMP instance
      */
     private static function getGump(): GUMP
@@ -148,9 +154,9 @@ class ValidationHelper
                 'role' => 'required|alpha',
                 'province_id' => 'integer',
                 'district_id' => 'integer',
-                'province_name' => 'alpha_space|max_len,100',
-                'district_name' => 'alpha_space|max_len,100',
-                'branch_name' => 'alpha_space|max_len,255'
+                'province_name' => ['regex' => [self::ORG_NAME_PATTERN], 'max_len' => 100],
+                'district_name' => ['regex' => [self::ORG_NAME_PATTERN], 'max_len' => 100],
+                'branch_name' => ['regex' => [self::ORG_NAME_PATTERN], 'max_len' => 255]
             ]
         );
     }

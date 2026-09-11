@@ -470,6 +470,259 @@ body[data-role] .dashboard-section {
     }
 }
 
+/* Signup success page (shown after a new office account is created) */
+.signup-success {
+    width: min(100%, 600px);
+    animation: landingRise 0.6s ease both;
+}
+
+.signup-success a {
+    margin-top: 0;
+}
+
+.signup-success a:focus-visible {
+    outline: 3px solid rgba(114, 59, 255, 0.45);
+    outline-offset: 3px;
+}
+
+.signup-success-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-height: 42px;
+    padding-right: 3.5rem;
+    color: #3a465c;
+    font-weight: 700;
+}
+
+.signup-success-brand img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+}
+
+.signup-success-hero {
+    margin: 1.5rem 0;
+    text-align: center;
+}
+
+.signup-success-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 84px;
+    height: 84px;
+    margin: 0 auto 1.1rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #723bff 0%, #5a7fff 100%);
+    box-shadow: 0 0 0 10px rgba(114, 59, 255, 0.1), 0 18px 36px rgba(114, 59, 255, 0.32);
+    animation: signupSuccessPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both;
+}
+
+.signup-success-badge svg {
+    width: 44px;
+    height: 44px;
+}
+
+.signup-success-badge path {
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 40;
+    stroke-dashoffset: 40;
+    animation: signupSuccessCheck 0.45s ease-out 0.55s forwards;
+}
+
+.signup-success-kicker {
+    display: inline-block;
+    margin-bottom: 0.75rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    background: rgba(15, 159, 110, 0.12);
+    color: #0b7a55;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.signup-success-hero h1 {
+    margin: 0 0 0.6rem;
+    color: #11192d;
+    font-size: clamp(1.6rem, 4vw, 2.1rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+}
+
+.signup-success-hero h1:focus {
+    outline: none;
+}
+
+.signup-success-hero p {
+    max-width: 44ch;
+    margin: 0 auto;
+    color: #667085;
+    font-size: 1.02rem;
+    text-wrap: balance;
+}
+
+.signup-success-summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem 1.25rem;
+    margin: 0 0 1.5rem;
+    padding: 1.1rem 1.25rem;
+    border: 1px solid #e1e6f0;
+    border-radius: 18px;
+    background: #f8faff;
+}
+
+.signup-success-summary[hidden] {
+    display: none;
+}
+
+.signup-success-summary .is-wide {
+    grid-column: 1 / -1;
+}
+
+.signup-success-summary dt {
+    margin-bottom: 0.2rem;
+    color: #6b7384;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.signup-success-summary dd {
+    margin: 0;
+    color: #11192d;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.signup-success-steps h2 {
+    margin: 0 0 0.9rem;
+    color: #11192d;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.signup-success-steps ol {
+    display: grid;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: signup-step;
+}
+
+.signup-success-steps li {
+    display: grid;
+    grid-template-columns: 2.25rem minmax(0, 1fr);
+    gap: 0.85rem;
+    align-items: start;
+    padding: 0.9rem 1rem;
+    border: 1px solid #edf1f7;
+    border-radius: 16px;
+    background: #ffffff;
+    counter-increment: signup-step;
+}
+
+.signup-success-steps li::before {
+    content: counter(signup-step);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 12px;
+    background: rgba(114, 59, 255, 0.12);
+    color: #5528eb;
+    font-weight: 800;
+}
+
+.signup-success-step-title {
+    display: block;
+    color: #11192d;
+    font-weight: 700;
+}
+
+.signup-success-step-copy {
+    display: block;
+    margin-top: 0.2rem;
+    color: #667085;
+    font-size: 0.94rem;
+    line-height: 1.55;
+}
+
+.signup-success-step-copy strong {
+    color: #11192d;
+    overflow-wrap: anywhere;
+}
+
+.signup-success-actions {
+    margin-top: 1.75rem;
+}
+
+.signup-success-actions .auth-primary-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: 0 14px 28px rgba(114, 59, 255, 0.28);
+}
+
+.signup-success-help {
+    margin: 1.1rem 0 0;
+    color: #667085;
+    font-size: 0.88rem;
+    text-align: center;
+}
+
+@keyframes signupSuccessPop {
+    from {
+        opacity: 0;
+        transform: scale(0.6);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes signupSuccessCheck {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .signup-success-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .signup-success-badge {
+        width: 72px;
+        height: 72px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .signup-success,
+    .signup-success-badge,
+    .signup-success-badge path {
+        animation: none;
+    }
+
+    .signup-success-badge path {
+        stroke-dashoffset: 0;
+    }
+}
+
 .analytics-dashboard {
     display: grid;
     gap: 1.5rem;

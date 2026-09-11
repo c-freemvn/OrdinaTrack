@@ -53,6 +53,7 @@ class Schema
 
             // Create super admin user and assign all permissions
             self::createSuperAdminUser();
+            self::ensureSuperAdminRole();
 
             error_log('All database schemas initialized successfully');
             return true;
@@ -654,6 +655,7 @@ class Schema
     private static function insertDefaultRoles(): void
     {
         $defaultRoles = [
+            ['name' => 'Super Admin', 'slug' => 'super_admin', 'description' => 'Full system access: manages roles, permissions and users'],
             ['name' => 'Admin', 'slug' => 'admin', 'description' => 'System administrator with full access'],
             ['name' => 'NHQ Admin', 'slug' => 'nhq_admin', 'description' => 'National headquarters administrator'],
             ['name' => 'Province Lead', 'slug' => 'province_lead', 'description' => 'Province administrator'],
@@ -855,6 +857,35 @@ class Schema
             }
         } catch (PDOException $e) {
             error_log('Create super admin user error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Ensure the super_admin role exists and the built-in super admin holds it.
+     * Idempotent, so existing databases (created before the role existed) get upgraded.
+     */
+    private static function ensureSuperAdminRole(): void
+    {
+        try {
+            $role = Database::fetch("SELECT id FROM roles WHERE slug = 'super_admin'");
+            if (!$role) {
+                self::insertDefaultRoles();
+                $role = Database::fetch("SELECT id FROM roles WHERE slug = 'super_admin'");
+            }
+
+            if (!$role) {
+                return;
+            }
+
+            Database::execute(
+                "INSERT INTO user_roles (user_id, role_id)
+                 SELECT u.id, ? FROM users u
+                 WHERE u.email = 'super.admin@ordinatrack.com'
+                   AND NOT EXISTS (SELECT 1 FROM user_roles ur WHERE ur.user_id = u.id AND ur.role_id = ?)",
+                [$role['id'], $role['id']]
+            );
+        } catch (PDOException $e) {
+            error_log('Ensure super admin role error: ' . $e->getMessage());
         }
     }
     /**

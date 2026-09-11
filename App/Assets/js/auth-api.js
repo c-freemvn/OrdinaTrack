@@ -20,6 +20,8 @@ const AUTH_CONFIG = {
   REDIRECT_DELAY: 1500,
   API_BASE: window.location.origin + "/OrdinaTrack/API/index.php",
   DASHBAORD_REDIRECT: window.location.origin + "/OrdinaTrack/App/dashboard/",
+  SIGNUP_SUCCESS_URL: "/OrdinaTrack/App/pages/signup-success.html",
+  SIGNUP_SUCCESS_KEY: "signup_success",
 };
 
 // API endpoint helper
@@ -106,7 +108,28 @@ document.addEventListener("DOMContentLoaded", function () {
   if (document.body.dataset.page !== "auth") return;
 
   initializeAuthPage();
+  prefillSigninAfterSignup();
 });
+
+// Fill in the email of someone arriving from the signup success page.
+// The saved details are cleared here so they don't linger in the tab.
+function prefillSigninAfterSignup() {
+  let details = null;
+  try {
+    details = JSON.parse(
+      sessionStorage.getItem(AUTH_CONFIG.SIGNUP_SUCCESS_KEY) || "null",
+    );
+  } catch (e) {
+    details = null;
+  }
+  sessionStorage.removeItem(AUTH_CONFIG.SIGNUP_SUCCESS_KEY);
+
+  const emailInput = document.getElementById("signinEmail");
+  if (!details?.email || !emailInput) return;
+
+  emailInput.value = details.email;
+  document.getElementById("signinPassword")?.focus();
+}
 
 function initializeAuthPage() {
   // Bind event handlers
@@ -463,19 +486,27 @@ async function handleSignupSubmit(event) {
     });
 
     if (response.success) {
-      showAuthStatus("Account created! Redirecting to login...", "success");
+      // Hand the details to the success page (cleared again on sign-in)
+      sessionStorage.setItem(
+        AUTH_CONFIG.SIGNUP_SUCCESS_KEY,
+        JSON.stringify({
+          name: secretaryName,
+          first_name: firstName,
+          email: email,
+          role: role,
+          province: province,
+          district: district,
+          branch: branch,
+        }),
+      );
 
-      // Reset form
+      // Leave the form clean in case the browser restores this page on Back
       document.getElementById("signupForm").reset();
-      document.getElementById("signupStepOne").classList.remove("d-none");
-      document.getElementById("signupStepTwo").classList.add("d-none");
+      goToDetailsStep();
+      btn.disabled = false;
+      btn.textContent = originalText;
 
-      // Switch to signin tab
-      setTimeout(() => {
-        activatePanel("signinPanel");
-        document.getElementById("signinEmail").value = email;
-        document.getElementById("signinEmail").focus();
-      }, AUTH_CONFIG.REDIRECT_DELAY);
+      window.location.href = AUTH_CONFIG.SIGNUP_SUCCESS_URL;
     } else {
       showAuthStatus(response.message || "Registration failed", "danger");
       btn.disabled = false;
@@ -645,7 +676,9 @@ function redirectToDashboard(user) {
     //   case "nhq":
     //   case "nhq_admin":
     // path = "/OrdinaTrack/App/pages/nhq-dashboard.html";
-    path = `${AUTH_CONFIG.DASHBAORD_REDIRECT}/${user.role}/index.html`;
+    // Role slugs (branch_admin, super_admin, ...) don't match the dashboard
+    // folder names, so let the dashboard router's role map pick the page
+    path = `${AUTH_CONFIG.DASHBAORD_REDIRECT}index.html`;
     //     break;
     //   case "province":
     //   case "province_lead":

@@ -346,7 +346,7 @@ class AuthModel
         try {
             // Get user from database
             $user = Database::fetch(
-                'SELECT id, email, password, first_name, last_name, is_active FROM users WHERE email = ?',
+                'SELECT id, email, password, first_name, last_name, is_active FROM users WHERE email = ? AND deleted_at IS NULL',
                 [$email]
             );
 
@@ -376,12 +376,13 @@ class AuthModel
                 ];
             }
 
-            // Get user's role
+            // Get user's primary role (super_admin wins so they land on the admin dashboard)
             $roleResult = Database::fetch(
-                'SELECT r.name, r.slug FROM user_roles ur 
-                 JOIN roles r ON ur.role_id = r.id 
-                 WHERE ur.user_id = ? 
-                 LIMIT 1',
+                "SELECT r.name, r.slug FROM user_roles ur
+                 JOIN roles r ON ur.role_id = r.id
+                 WHERE ur.user_id = ?
+                 ORDER BY (r.slug = 'super_admin') DESC, ur.id ASC
+                 LIMIT 1",
                 [$user['id']]
             );
 
@@ -661,9 +662,9 @@ class AuthModel
     {
         try {
             return Database::fetch(
-                'SELECT id, email, first_name, last_name, is_active, created_at, last_login FROM users WHERE id = ?',
+                'SELECT id, email, first_name, last_name, is_active, created_at, last_login_at FROM users WHERE id = ? AND deleted_at IS NULL',
                 [$userId]
-            );
+            ) ?: null;
         } catch (Exception $e) {
             error_log("Get user error: " . $e->getMessage());
             return null;

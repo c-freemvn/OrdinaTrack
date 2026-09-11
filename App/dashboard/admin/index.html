@@ -31,13 +31,6 @@
     />
 
     <style>
-      * {
-        transition-property:
-          background-color, border-color, color, fill, stroke;
-        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-        transition-duration: 150ms;
-      }
-
       body {
         font-family: "Inter", sans-serif;
         background: #f8fafc;
@@ -61,6 +54,8 @@
         background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
         overflow-y: auto;
         z-index: 40;
+        display: flex;
+        flex-direction: column;
       }
 
       .sidebar-item {
@@ -92,32 +87,20 @@
         border-radius: 12px;
         padding: 24px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      .stat-card:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        transform: translateY(-2px);
       }
 
       .form-input {
         border: 1px solid #e2e8f0;
         border-radius: 8px;
         padding: 10px 16px;
-        font-size: 16px;
-        font-family: "Inter", sans-serif;
+        font-size: 15px;
         background-color: #f8fafc;
         color: #1e293b;
         transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
       }
 
       .form-input::placeholder {
-        color: #cbd5e1;
-      }
-
-      .form-input:hover {
-        background-color: #fff;
-        border-color: #e2e8f0;
+        color: #94a3b8;
       }
 
       .form-input:focus {
@@ -125,6 +108,19 @@
         background-color: #fff;
         border-color: #2563eb;
         box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      }
+
+      .form-input:disabled {
+        color: #64748b;
+        cursor: not-allowed;
+      }
+
+      .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 6px;
       }
 
       .btn-primary {
@@ -136,19 +132,16 @@
         font-size: 14px;
         font-weight: 600;
         cursor: pointer;
-        transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
         box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
       }
 
       .btn-primary:hover {
-        transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
       }
 
       .btn-primary:disabled {
         opacity: 0.7;
         cursor: not-allowed;
-        transform: none;
       }
 
       .btn-secondary {
@@ -160,40 +153,40 @@
         font-size: 14px;
         font-weight: 500;
         cursor: pointer;
-        transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
       }
 
       .btn-secondary:hover {
         background-color: #cbd5e1;
       }
 
-      .btn-danger {
-        background-color: #ef4444;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 10px 16px;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+      .btn-secondary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
       }
 
-      .btn-danger:hover {
-        background-color: #dc2626;
+      .btn-link {
+        background: none;
+        border: none;
+        padding: 0;
+        font-size: 14px;
+        font-weight: 500;
+        color: #2563eb;
+        cursor: pointer;
+      }
+
+      .btn-link:hover {
+        text-decoration: underline;
+      }
+
+      .btn-link.danger {
+        color: #dc2626;
       }
 
       .table-container {
         background: white;
         border-radius: 12px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-      }
-
-      .table-header {
-        background: #f8fafc;
-        border-bottom: 1px solid #e2e8f0;
-        padding: 16px;
+        overflow-x: auto;
       }
 
       table {
@@ -205,18 +198,22 @@
         background: #f8fafc;
         padding: 12px 16px;
         text-align: left;
+        font-size: 13px;
         font-weight: 600;
         color: #475569;
         border-bottom: 1px solid #e2e8f0;
+        white-space: nowrap;
       }
 
       table td {
         padding: 12px 16px;
         border-bottom: 1px solid #e2e8f0;
         color: #334155;
+        font-size: 14px;
+        vertical-align: top;
       }
 
-      table tr:hover {
+      table tr:hover td {
         background: #f8fafc;
       }
 
@@ -224,7 +221,7 @@
         display: none;
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.5);
+        background: rgba(15, 23, 42, 0.5);
         z-index: 50;
         align-items: center;
         justify-content: center;
@@ -237,20 +234,25 @@
       .modal-content {
         background: white;
         border-radius: 12px;
-        padding: 32px;
-        max-width: 500px;
-        width: 90%;
+        padding: 28px;
+        max-width: 560px;
+        width: 92%;
         max-height: 90vh;
         overflow-y: auto;
         box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
       }
 
+      .modal-content.wide {
+        max-width: 760px;
+      }
+
       .badge {
         display: inline-block;
-        padding: 4px 12px;
+        padding: 3px 10px;
         border-radius: 16px;
         font-size: 12px;
         font-weight: 600;
+        white-space: nowrap;
       }
 
       .badge-success {
@@ -268,20 +270,64 @@
         color: #1e40af;
       }
 
-      .alert {
+      .badge-warning {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .badge-muted {
+        background: #f1f5f9;
+        color: #475569;
+      }
+
+      .perm-group {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 12px 14px;
+      }
+
+      .loc-tab {
+        padding: 10px 16px;
+        margin-bottom: -1px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #64748b;
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        cursor: pointer;
+      }
+
+      .loc-tab.active {
+        color: #2563eb;
+        border-bottom-color: #2563eb;
+      }
+
+      .loc-count {
+        margin-left: 4px;
+        font-weight: 500;
+        color: #94a3b8;
+      }
+
+      .toast {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        z-index: 60;
+        max-width: 360px;
         padding: 12px 16px;
         border-radius: 8px;
         font-size: 14px;
-        margin-bottom: 16px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
       }
 
-      .alert-success {
+      .toast-success {
         background-color: #dcfce7;
         color: #166534;
         border: 1px solid #bbf7d0;
       }
 
-      .alert-danger {
+      .toast-danger {
         background-color: #fee2e2;
         color: #991b1b;
         border: 1px solid #fecaca;
@@ -312,6 +358,7 @@
 
         .main-content {
           margin-left: 0;
+          padding: 20px;
         }
       }
     </style>
@@ -324,102 +371,69 @@
         <p class="text-xs text-gray-400 mt-1">Super Admin</p>
       </div>
 
-      <nav class="mt-6">
-        <div class="sidebar-item active" data-section="dashboard">
-          📊 Dashboard
-        </div>
+      <nav class="mt-6 flex-1">
+        <div class="sidebar-item active" data-section="dashboard">📊 Dashboard</div>
         <div class="sidebar-item" data-section="users">👥 Users</div>
         <div class="sidebar-item" data-section="roles">🎭 Roles</div>
-        <div class="sidebar-item" data-section="permissions">
-          🔐 Permissions
-        </div>
+        <div class="sidebar-item" data-section="permissions">🔐 Permissions</div>
+        <div class="sidebar-item" data-section="locations">📍 Locations</div>
         <div class="sidebar-item" data-section="activity">📋 Activity Logs</div>
-        <div
-          class="sidebar-item mt-12 cursor-pointer hover:text-red-400"
+      </nav>
+
+      <div class="p-4 border-t border-gray-700">
+        <p class="text-sm font-medium text-white truncate" id="current-user-name"></p>
+        <p class="text-xs text-gray-400 truncate" id="current-user-email"></p>
+        <button
+          class="mt-3 w-full text-left text-sm text-gray-300 hover:text-red-400"
           id="logoutBtn"
         >
           🚪 Logout
-        </div>
-      </nav>
+        </button>
+      </div>
     </aside>
 
     <!-- Main Content -->
     <main class="main-content">
       <!-- Dashboard Section -->
       <section id="dashboard-section" class="section-content">
-        <div class="mb-8">
-          <h1 class="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
-          <p class="text-gray-600">System overview and statistics</p>
+        <div class="mb-8 flex flex-wrap gap-4 justify-between items-end">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
+            <p class="text-gray-600">System overview and statistics</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button class="btn-secondary" onclick="openUserModal()">+ Add User</button>
+            <button class="btn-secondary" onclick="openPermissionModal()">+ Permission</button>
+            <button class="btn-primary" onclick="openRoleModal()">+ Create Role</button>
+          </div>
         </div>
 
         <!-- Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div class="stat-card">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-gray-600 text-sm font-medium">Total Users</p>
-                <p
-                  class="text-3xl font-bold text-gray-900 mt-2"
-                  id="stat-total-users"
-                >
-                  0
-                </p>
-              </div>
-              <div class="text-4xl text-blue-100">👥</div>
-            </div>
+            <p class="text-gray-600 text-sm font-medium">Total Users</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2" id="stat-total-users">–</p>
           </div>
-
           <div class="stat-card">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-gray-600 text-sm font-medium">Active Users</p>
-                <p
-                  class="text-3xl font-bold text-gray-900 mt-2"
-                  id="stat-active-users"
-                >
-                  0
-                </p>
-              </div>
-              <div class="text-4xl text-green-100">✓</div>
-            </div>
+            <p class="text-gray-600 text-sm font-medium">Active Users</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2" id="stat-active-users">–</p>
           </div>
-
           <div class="stat-card">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-gray-600 text-sm font-medium">Total Roles</p>
-                <p
-                  class="text-3xl font-bold text-gray-900 mt-2"
-                  id="stat-total-roles"
-                >
-                  0
-                </p>
-              </div>
-              <div class="text-4xl text-purple-100">🎭</div>
-            </div>
+            <p class="text-gray-600 text-sm font-medium">Roles</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2" id="stat-total-roles">–</p>
           </div>
-
           <div class="stat-card">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-gray-600 text-sm font-medium">
-                  Total Permissions
-                </p>
-                <p
-                  class="text-3xl font-bold text-gray-900 mt-2"
-                  id="stat-total-permissions"
-                >
-                  0
-                </p>
-              </div>
-              <div class="text-4xl text-orange-100">🔐</div>
-            </div>
+            <p class="text-gray-600 text-sm font-medium">Permissions</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2" id="stat-total-permissions">–</p>
           </div>
         </div>
 
         <!-- Recent Activity -->
         <div class="stat-card">
-          <h2 class="text-lg font-bold text-gray-900 mb-4">Recent Activity</h2>
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-bold text-gray-900">Recent Activity</h2>
+            <button class="btn-link" onclick="switchSection('activity')">View all</button>
+          </div>
           <div id="activity-container">
             <div class="text-center py-8 text-gray-500">Loading...</div>
           </div>
@@ -428,41 +442,48 @@
 
       <!-- Users Section -->
       <section id="users-section" class="section-content hidden">
-        <div class="mb-8 flex justify-between items-center">
+        <div class="mb-6 flex flex-wrap gap-4 justify-between items-center">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">
-              Users Management
-            </h1>
-            <p class="text-gray-600">Manage user accounts and permissions</p>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Users</h1>
+            <p class="text-gray-600">Create accounts, assign roles and manage access</p>
           </div>
-          <button class="btn-primary" onclick="openUserModal()">
-            + Add User
-          </button>
+          <button class="btn-primary" onclick="openUserModal()">+ Add User</button>
         </div>
 
-        <!-- User List -->
+        <div class="mb-4">
+          <input
+            type="search"
+            id="user-search"
+            class="form-input w-full md:w-96"
+            placeholder="Search by name or email..."
+          />
+        </div>
+
         <div class="table-container">
           <div id="users-table-container">
             <div class="p-8 text-center text-gray-500">Loading users...</div>
+          </div>
+        </div>
+
+        <div class="mt-4 flex items-center justify-between">
+          <p class="text-sm text-gray-600" id="users-pagination-info"></p>
+          <div class="flex gap-2">
+            <button class="btn-secondary" id="users-prev">← Previous</button>
+            <button class="btn-secondary" id="users-next">Next →</button>
           </div>
         </div>
       </section>
 
       <!-- Roles Section -->
       <section id="roles-section" class="section-content hidden">
-        <div class="mb-8 flex justify-between items-center">
+        <div class="mb-6 flex flex-wrap gap-4 justify-between items-center">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">
-              Roles Management
-            </h1>
-            <p class="text-gray-600">Create and manage system roles</p>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Roles</h1>
+            <p class="text-gray-600">Create roles and choose what each one can do</p>
           </div>
-          <button class="btn-primary" onclick="openRoleModal()">
-            + Create Role
-          </button>
+          <button class="btn-primary" onclick="openRoleModal()">+ Create Role</button>
         </div>
 
-        <!-- Roles List -->
         <div class="table-container">
           <div id="roles-table-container">
             <div class="p-8 text-center text-gray-500">Loading roles...</div>
@@ -472,41 +493,60 @@
 
       <!-- Permissions Section -->
       <section id="permissions-section" class="section-content hidden">
-        <div class="mb-8 flex justify-between items-center">
+        <div class="mb-6 flex flex-wrap gap-4 justify-between items-center">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">
-              Permissions Management
-            </h1>
-            <p class="text-gray-600">Manage system permissions</p>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Permissions</h1>
+            <p class="text-gray-600">The individual actions roles can be granted</p>
           </div>
-          <button class="btn-primary" onclick="openPermissionModal()">
-            + Create Permission
-          </button>
+          <button class="btn-primary" onclick="openPermissionModal()">+ Create Permission</button>
         </div>
 
-        <!-- Permissions List -->
         <div class="table-container">
           <div id="permissions-table-container">
-            <div class="p-8 text-center text-gray-500">
-              Loading permissions...
-            </div>
+            <div class="p-8 text-center text-gray-500">Loading permissions...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Locations Section -->
+      <section id="locations-section" class="section-content hidden">
+        <div class="mb-6 flex flex-wrap gap-4 justify-between items-center">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Locations</h1>
+            <p class="text-gray-600">Provinces, districts and branches of the church</p>
+          </div>
+          <button class="btn-primary" id="location-add-btn">+ Add Province</button>
+        </div>
+
+        <div class="flex gap-2 mb-4 border-b border-gray-200">
+          <button class="loc-tab active" data-type="provinces">Provinces<span class="loc-count" id="loc-count-provinces"></span></button>
+          <button class="loc-tab" data-type="districts">Districts<span class="loc-count" id="loc-count-districts"></span></button>
+          <button class="loc-tab" data-type="branches">Branches<span class="loc-count" id="loc-count-branches"></span></button>
+        </div>
+
+        <div class="flex flex-wrap gap-3 mb-4">
+          <select id="loc-filter-province" class="form-input hidden"></select>
+          <select id="loc-filter-district" class="form-input hidden"></select>
+          <input type="search" id="loc-search" class="form-input w-full md:w-72" placeholder="Search by name or code..." />
+        </div>
+
+        <div class="table-container">
+          <div id="locations-table-container">
+            <div class="p-8 text-center text-gray-500">Loading...</div>
           </div>
         </div>
       </section>
 
       <!-- Activity Logs Section -->
       <section id="activity-section" class="section-content hidden">
-        <div class="mb-8">
+        <div class="mb-6">
           <h1 class="text-3xl font-bold text-gray-900 mb-2">Activity Logs</h1>
-          <p class="text-gray-600">System activity and audit trail</p>
+          <p class="text-gray-600">Audit trail of changes made by administrators</p>
         </div>
 
-        <!-- Activity Log Table -->
         <div class="table-container">
           <div id="activity-log-container">
-            <div class="p-8 text-center text-gray-500">
-              Loading activity logs...
-            </div>
+            <div class="p-8 text-center text-gray-500">Loading activity logs...</div>
           </div>
         </div>
       </section>
@@ -515,61 +555,57 @@
     <!-- User Modal -->
     <div class="modal" id="user-modal">
       <div class="modal-content">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Manage User</h2>
+        <h2 class="text-2xl font-bold text-gray-900 mb-6" id="user-modal-title">Add User</h2>
 
-        <form id="user-form" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Email</label
-            >
-            <input
-              type="email"
-              id="user-email"
-              class="form-input w-full"
-              disabled
-            />
+        <form id="user-form" class="space-y-4" novalidate>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="form-label" for="user-first-name">First name *</label>
+              <input type="text" id="user-first-name" class="form-input w-full" maxlength="50" />
+            </div>
+            <div>
+              <label class="form-label" for="user-last-name">Last name *</label>
+              <input type="text" id="user-last-name" class="form-input w-full" maxlength="50" />
+            </div>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Name</label
-            >
-            <input
-              type="text"
-              id="user-name"
-              class="form-input w-full"
-              disabled
-            />
+            <label class="form-label" for="user-email">Email *</label>
+            <input type="email" id="user-email" class="form-input w-full" />
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="form-label" for="user-phone">Phone</label>
+              <input type="tel" id="user-phone" class="form-input w-full" maxlength="20" />
+            </div>
+            <div>
+              <label class="form-label" for="user-status">Status</label>
+              <select id="user-status" class="form-input w-full">
+                <option value="1">Active</option>
+                <option value="0">Inactive</option>
+              </select>
+            </div>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Status</label
-            >
-            <select id="user-status" class="form-input w-full">
-              <option value="1">Active</option>
-              <option value="0">Inactive</option>
-            </select>
+            <label class="form-label" for="user-password" id="user-password-label">Password *</label>
+            <input type="password" id="user-password" class="form-input w-full" autocomplete="new-password" />
+            <p class="text-xs text-gray-500 mt-1" id="user-password-hint">
+              At least 8 characters with uppercase, lowercase, number and special character.
+            </p>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Roles</label
-            >
-            <div id="user-roles-container" class="space-y-2"></div>
+            <label class="form-label">Roles</label>
+            <div id="user-roles-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
           </div>
 
-          <div class="flex gap-3 mt-6">
-            <button
-              type="button"
-              class="btn-secondary flex-1"
-              onclick="closeUserModal()"
-            >
+          <div class="flex gap-3 pt-2">
+            <button type="button" class="btn-secondary flex-1" onclick="closeModal('user-modal')">
               Cancel
             </button>
-            <button type="submit" class="btn-primary flex-1">
-              Save Changes
-            </button>
+            <button type="submit" class="btn-primary flex-1" id="user-submit-btn">Create User</button>
           </div>
         </form>
       </div>
@@ -577,67 +613,42 @@
 
     <!-- Role Modal -->
     <div class="modal" id="role-modal">
-      <div class="modal-content">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Create Role</h2>
+      <div class="modal-content wide">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6" id="role-modal-title">Create Role</h2>
 
-        <form id="role-form" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Role Name</label
-            >
-            <input
-              type="text"
-              id="role-name"
-              class="form-input w-full"
-              placeholder="e.g., Manager"
-            />
+        <form id="role-form" class="space-y-4" novalidate>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="form-label" for="role-name">Role name *</label>
+              <input type="text" id="role-name" class="form-input w-full" placeholder="e.g., Finance Officer" />
+            </div>
+            <div>
+              <label class="form-label" for="role-slug">Slug</label>
+              <input type="text" id="role-slug" class="form-input w-full" placeholder="auto from name" />
+            </div>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Slug</label
-            >
-            <input
-              type="text"
-              id="role-slug"
-              class="form-input w-full"
-              placeholder="e.g., manager"
-            />
+            <label class="form-label" for="role-description">Description</label>
+            <textarea id="role-description" class="form-input w-full" rows="2" placeholder="What is this role for?"></textarea>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Description</label
-            >
-            <textarea
-              id="role-description"
-              class="form-input w-full"
-              rows="3"
-              placeholder="Role description"
-            ></textarea>
+            <div class="flex justify-between items-center mb-2">
+              <label class="form-label mb-0">Permissions</label>
+              <span class="text-xs text-gray-500" id="role-permissions-count"></span>
+            </div>
+            <p class="hidden text-sm text-amber-700 bg-amber-50 rounded-lg p-3 mb-3" id="role-permissions-note">
+              Super Admins always have every permission; the selections below are not required.
+            </p>
+            <div id="role-permissions-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
           </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Permissions</label
-            >
-            <div
-              id="role-permissions-container"
-              class="space-y-2 max-h-40 overflow-y-auto"
-            ></div>
-          </div>
-
-          <div class="flex gap-3 mt-6">
-            <button
-              type="button"
-              class="btn-secondary flex-1"
-              onclick="closeRoleModal()"
-            >
+          <div class="flex gap-3 pt-2">
+            <button type="button" class="btn-secondary flex-1" onclick="closeModal('role-modal')">
               Cancel
             </button>
-            <button type="submit" class="btn-primary flex-1">
-              Create Role
-            </button>
+            <button type="submit" class="btn-primary flex-1" id="role-submit-btn">Create Role</button>
           </div>
         </form>
       </div>
@@ -646,86 +657,145 @@
     <!-- Permission Modal -->
     <div class="modal" id="permission-modal">
       <div class="modal-content">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Create Permission</h2>
+        <h2 class="text-2xl font-bold text-gray-900 mb-6" id="permission-modal-title">Create Permission</h2>
 
-        <form id="permission-form" class="space-y-4">
+        <form id="permission-form" class="space-y-4" novalidate>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Permission Name</label
-            >
-            <input
-              type="text"
-              id="permission-name"
-              class="form-input w-full"
-              placeholder="e.g., Create User"
-            />
+            <label class="form-label" for="permission-name">Permission name *</label>
+            <input type="text" id="permission-name" class="form-input w-full" placeholder="e.g., Export Reports" />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Slug</label
-            >
-            <input
-              type="text"
-              id="permission-slug"
-              class="form-input w-full"
-              placeholder="e.g., create_user"
-            />
+            <label class="form-label" for="permission-slug">Slug</label>
+            <input type="text" id="permission-slug" class="form-input w-full" placeholder="auto from name" />
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="form-label" for="permission-resource">Resource</label>
+              <input type="text" id="permission-resource" class="form-input w-full" placeholder="e.g., reports" list="permission-resources" />
+              <datalist id="permission-resources"></datalist>
+            </div>
+            <div>
+              <label class="form-label" for="permission-action">Action</label>
+              <input type="text" id="permission-action" class="form-input w-full" placeholder="e.g., export" list="permission-actions" />
+              <datalist id="permission-actions">
+                <option value="create"></option>
+                <option value="read"></option>
+                <option value="update"></option>
+                <option value="delete"></option>
+                <option value="approve"></option>
+                <option value="export"></option>
+                <option value="manage"></option>
+              </datalist>
+            </div>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Resource</label
-            >
-            <input
-              type="text"
-              id="permission-resource"
-              class="form-input w-full"
-              placeholder="e.g., users"
-            />
+            <label class="form-label" for="permission-description">Description</label>
+            <textarea id="permission-description" class="form-input w-full" rows="2"></textarea>
           </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Action</label
-            >
-            <select id="permission-action" class="form-input w-full">
-              <option value="">Select action</option>
-              <option value="create">Create</option>
-              <option value="read">Read</option>
-              <option value="update">Update</option>
-              <option value="delete">Delete</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Description</label
-            >
-            <textarea
-              id="permission-description"
-              class="form-input w-full"
-              rows="3"
-              placeholder="Permission description"
-            ></textarea>
-          </div>
-
-          <div class="flex gap-3 mt-6">
-            <button
-              type="button"
-              class="btn-secondary flex-1"
-              onclick="closePermissionModal()"
-            >
+          <div class="flex gap-3 pt-2">
+            <button type="button" class="btn-secondary flex-1" onclick="closeModal('permission-modal')">
               Cancel
             </button>
-            <button type="submit" class="btn-primary flex-1">
-              Create Permission
-            </button>
+            <button type="submit" class="btn-primary flex-1" id="permission-submit-btn">Create Permission</button>
           </div>
         </form>
       </div>
     </div>
 
-    <script src="../../../Assets/js/super-admin.js" defer></script>
+    <!-- Location Modal (province / district / branch) -->
+    <div class="modal" id="location-modal">
+      <div class="modal-content">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6" id="location-modal-title">Add Province</h2>
+
+        <form id="location-form" class="space-y-4" novalidate>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="sm:col-span-2">
+              <label class="form-label" for="loc-name">Name *</label>
+              <input type="text" id="loc-name" class="form-input w-full" maxlength="100" />
+            </div>
+            <div>
+              <label class="form-label" for="loc-code">Code</label>
+              <input type="text" id="loc-code" class="form-input w-full uppercase" maxlength="10" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div id="loc-province-field">
+              <label class="form-label" for="loc-province">Province *</label>
+              <select id="loc-province" class="form-input w-full"></select>
+            </div>
+            <div id="loc-district-field">
+              <label class="form-label" for="loc-district">District *</label>
+              <select id="loc-district" class="form-input w-full"></select>
+            </div>
+          </div>
+
+          <div id="loc-branch-fields" class="space-y-4">
+            <div>
+              <label class="form-label" for="loc-address">Address</label>
+              <textarea id="loc-address" class="form-input w-full" rows="2"></textarea>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="form-label" for="loc-contact-person">Contact person</label>
+                <input type="text" id="loc-contact-person" class="form-input w-full" maxlength="100" />
+              </div>
+              <div>
+                <label class="form-label" for="loc-contact-phone">Contact phone</label>
+                <input type="tel" id="loc-contact-phone" class="form-input w-full" maxlength="20" />
+              </div>
+            </div>
+            <div>
+              <label class="form-label" for="loc-contact-email">Contact email</label>
+              <input type="email" id="loc-contact-email" class="form-input w-full" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="form-label" for="loc-administrator">Administrator</label>
+              <select id="loc-administrator" class="form-input w-full"></select>
+            </div>
+            <div>
+              <label class="form-label" for="loc-status">Status</label>
+              <select id="loc-status" class="form-input w-full">
+                <option value="1">Active</option>
+                <option value="0">Inactive</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="form-label" for="loc-description">Description</label>
+            <textarea id="loc-description" class="form-input w-full" rows="2"></textarea>
+          </div>
+
+          <div class="flex gap-3 pt-2">
+            <button type="button" class="btn-secondary flex-1" onclick="closeModal('location-modal')">
+              Cancel
+            </button>
+            <button type="submit" class="btn-primary flex-1" id="location-submit-btn">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Access denied (shown when the API rejects a non-super-admin) -->
+    <div class="modal" id="access-denied">
+      <div class="modal-content text-center">
+        <div class="text-5xl mb-4">🔒</div>
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">Super admin access required</h2>
+        <p class="text-gray-600 mb-6">Your account does not have permission to use this dashboard.</p>
+        <a href="/OrdinaTrack/App/pages/signin.html" class="btn-primary inline-block" onclick="logout(); return false;">
+          Sign in with another account
+        </a>
+      </div>
+    </div>
+
+    <script src="../../Assets/js/super-admin.js" defer></script>
   </body>
 </html>
