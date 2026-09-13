@@ -57,7 +57,7 @@ register_shutdown_function(static function (): void {
 const PUBLIC_RESOURCES = ['auth'];
 
 // --- Route resources that map to a {name}.route.php file + {name}Routes() handler. ---
-$ALLOWED_ROUTES = ['admin', 'auth', 'folder', 'logistics', 'privilege', 'public', 'requests'];
+$ALLOWED_ROUTES = ['admin', 'auth', 'branch', 'dashboard', 'district', 'folder', 'logistics', 'privilege', 'province', 'public', 'requests'];
 
 // One responder: consistent shape + headers, discard buffer, stop.
 function respond(int $http, array $body)

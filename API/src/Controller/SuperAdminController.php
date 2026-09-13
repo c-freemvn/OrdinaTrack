@@ -2,6 +2,7 @@
 
 namespace Ordinatrack\Api\Controller;
 
+use Ordinatrack\Api\Helpers\LocationValidator;
 use Ordinatrack\Api\Helpers\ValidationHelper;
 use Ordinatrack\Api\Model\LocationModel;
 use Ordinatrack\Api\Model\SuperAdminModel;
@@ -36,16 +37,7 @@ class SuperAdminController
         'min_len' => 'must be at least %s characters',
         'max_len' => 'must be at most %s characters',
         'alpha_space' => 'may only contain letters and spaces',
-        'alpha_numeric_dash' => 'may only contain letters, numbers, dashes and underscores',
-        'regex' => "may only contain letters, numbers, spaces and . / ' & ( ) -",
     ];
-
-    /**
-     * Location names: letters, digits, spaces and . / ' & ( ) - (e.g. "OGBA/EGBEMA").
-     * Same rule as registration's ORG_NAME_PATTERN in ValidationHelper, so any name
-     * created here can also be submitted at signup.
-     */
-    private const LOCATION_NAME_PATTERN = '/^[\p{L}\p{N} .\/\'&()-]+$/u';
 
     // ==================== ROLES ENDPOINTS ====================
 
@@ -462,57 +454,12 @@ class SuperAdminController
     }
 
     /**
-     * Validate location input: text fields through GUMP, ids and the active flag here.
-     * On update only the fields present in the request are validated.
+     * Location input rules are shared with the district dashboard, so district leads
+     * and the super admin validate branches the same way.
      */
     private static function locationInput(array $data, string $type, bool $creating): array
     {
-        $rules = [
-            'name' => ['required', 'regex' => [self::LOCATION_NAME_PATTERN], 'max_len' => 100],
-            'code' => 'alpha_numeric_dash|max_len,10',
-            'description' => 'max_len,1000',
-        ];
-        if ($type === 'branches') {
-            $rules += [
-                'address' => 'max_len,500',
-                'contact_person' => 'max_len,100',
-                'contact_phone' => 'max_len,20',
-                'contact_email' => 'valid_email|max_len,255',
-            ];
-        }
-        if (!$creating) {
-            $rules = array_intersect_key($rules, $data);
-        }
-
-        $input = [];
-        if ($rules) {
-            [$input, $error] = self::validateInput($data, $rules);
-            if ($error) {
-                return [null, $error];
-            }
-        }
-
-        foreach (['province_id', 'district_id', 'administrator_id'] as $key) {
-            if (!array_key_exists($key, $data)) {
-                continue;
-            }
-            $value = $data[$key];
-            if ($value !== null && $value !== '' && !is_numeric($value)) {
-                $label = ucfirst(str_replace('_', ' ', $key));
-                return [null, ['success' => false, 'message' => "$label must be a numeric id", 'status' => 422]];
-            }
-            $input[$key] = ($value === null || $value === '') ? null : (int)$value;
-        }
-
-        $isActive = self::bool($data, 'is_active');
-        if ($isActive !== null) {
-            $input['is_active'] = $isActive;
-        }
-
-        if (!$creating && !$input) {
-            return [null, ['success' => false, 'message' => 'No fields to update', 'status' => 422]];
-        }
-        return [$input, null];
+        return LocationValidator::input($data, $type, $creating);
     }
 
     private static function weakPasswordError(): array

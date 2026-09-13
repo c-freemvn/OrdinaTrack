@@ -201,6 +201,25 @@ class LocationModel
             }
         }
 
+        // Branches hold members through their organization record, so deleting one would
+        // orphan them. Refused the same way as a province that still has districts.
+        if ($type === 'branches') {
+            $members = (int)self::row(
+                "SELECT COUNT(*) AS count FROM members m
+                 INNER JOIN branches b ON b.organization_id = m.organization_id
+                 WHERE b.id = ? AND m.deleted_at IS NULL",
+                [$id]
+            )['count'];
+
+            if ($members > 0) {
+                $noun = $members === 1 ? 'member' : 'members';
+                throw new RuntimeException(
+                    "This branch still has $members $noun. Remove them first, or deactivate the branch instead.",
+                    409
+                );
+            }
+        }
+
         self::run("DELETE FROM $type WHERE id = ?", [$id]);
     }
 
